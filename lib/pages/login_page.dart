@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../widgets/app_logo.dart';
 import '../widgets/app_text_field.dart';
+import '../widgets/footer_widget.dart';
 import '../widgets/primary_button.dart';
 
 class LoginPage extends StatefulWidget {
@@ -128,10 +129,8 @@ class _LoginPageState extends State<LoginPage> {
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
 
-                    // Error ditampilkan langsung di bawah email
                     errorText: emailError,
 
-                    // Mengecek email saat user mengetik
                     onChanged: (value) {
                       setState(() {
                         if (value.trim().isEmpty) {
@@ -155,7 +154,6 @@ class _LoginPageState extends State<LoginPage> {
                       });
                     },
 
-                    // Validasi ketika tombol Log in ditekan
                     validator: (value) {
                       if (value == null ||
                           value.trim().isEmpty) {
@@ -187,10 +185,8 @@ class _LoginPageState extends State<LoginPage> {
                     hint: 'Password',
                     controller: passwordController,
 
-                    // Password menjadi •••••••
                     obscureText: !showPassword,
 
-                    // Mengaktifkan tombol Show / Hide
                     isPassword: true,
 
                     onTogglePassword: () {
@@ -291,50 +287,16 @@ class _LoginPageState extends State<LoginPage> {
                   ),
 
                   // =========================
-                  // SIGN UP
+                  // FOOTER
                   // =========================
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 20),
 
-                  Center(
-                    child: RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF676767),
-                        ),
-                        children: [
-                          const TextSpan(
-                            text:
-                                "Doesn't have an account yet? ",
-                          ),
-
-                          WidgetSpan(
-                            alignment:
-                                PlaceholderAlignment.middle,
-                            child: GestureDetector(
-                              onTap: () {
-                                // Navigasi ke RegisterPage
-                                // akan kita tambahkan nanti.
-                              },
-                              child: const Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight:
-                                      FontWeight.w600,
-                                  color:
-                                      Color(0xFF477052),
-                                  decoration:
-                                      TextDecoration.underline,
-                                  decorationColor:
-                                      Color(0xFF477052),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  FooterWidget(
+                    isLoginPage: true,
+                    onSignUpPressed: () {
+                      // Navigasi ke RegisterPage
+                      // akan ditambahkan nanti.
+                    },
                   ),
 
                   const SizedBox(height: 25),
