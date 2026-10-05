@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 
 class FooterWidget extends StatelessWidget {
   final VoidCallback? onLoginPressed;
+  final VoidCallback? onSignUpPressed;
+  final bool isLoginPage;
 
-  const FooterWidget({super.key, this.onLoginPressed});
+  const FooterWidget({
+    super.key,
+    this.onLoginPressed,
+    this.onSignUpPressed,
+    this.isLoginPage = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +22,9 @@ class FooterWidget extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0xFFF0ECE1),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFE1DBCF)),
+            border: Border.all(
+              color: const Color(0xFFE1DBCF),
+            ),
           ),
           child: Column(
             children: [
@@ -40,8 +49,14 @@ class FooterWidget extends StatelessWidget {
                 spacing: 6,
                 runSpacing: 6,
                 children: [
-                  _FooterPill(icon: Icons.restaurant_outlined, text: 'Eat'),
-                  _FooterPill(icon: Icons.bar_chart_rounded, text: 'Track'),
+                  _FooterPill(
+                    icon: Icons.restaurant_outlined,
+                    text: 'Eat',
+                  ),
+                  _FooterPill(
+                    icon: Icons.bar_chart_rounded,
+                    text: 'Track',
+                  ),
                   _FooterPill(
                     icon: Icons.favorite_border_rounded,
                     text: 'Grow',
@@ -63,16 +78,27 @@ class FooterWidget extends StatelessWidget {
               const SizedBox(height: 13),
 
               GestureDetector(
-                onTap: onLoginPressed,
+                onTap: isLoginPage
+                    ? onSignUpPressed
+                    : onLoginPressed,
                 child: RichText(
                   textAlign: TextAlign.center,
-                  text: const TextSpan(
-                    style: TextStyle(fontSize: 12, color: Color(0xFF777269)),
+                  text: TextSpan(
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF777269),
+                    ),
                     children: [
-                      TextSpan(text: 'Already have an account? '),
                       TextSpan(
-                        text: 'Log in',
-                        style: TextStyle(
+                        text: isLoginPage
+                            ? "Doesn't have an account yet? "
+                            : 'Already have an account? ',
+                      ),
+                      TextSpan(
+                        text: isLoginPage
+                            ? 'Sign Up'
+                            : 'Log in',
+                        style: const TextStyle(
                           color: Color(0xFF2F6541),
                           fontWeight: FontWeight.w800,
                         ),
@@ -113,7 +139,10 @@ class _GiziWatchLogo extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0xFFF7F3E9),
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFF2F6541), width: 3),
+            border: Border.all(
+              color: const Color(0xFF2F6541),
+              width: 3,
+            ),
           ),
           child: Stack(
             alignment: Alignment.center,
@@ -126,7 +155,6 @@ class _GiziWatchLogo extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
-
               Positioned(
                 left: 10,
                 top: 9,
@@ -139,7 +167,6 @@ class _GiziWatchLogo extends StatelessWidget {
                   ),
                 ),
               ),
-
               Positioned(
                 right: 8,
                 bottom: 8,
@@ -177,21 +204,33 @@ class _FooterPill extends StatelessWidget {
   final IconData icon;
   final String text;
 
-  const _FooterPill({required this.icon, required this.text});
+  const _FooterPill({
+    required this.icon,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 7,
+      ),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.7),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE0D9CD)),
+        border: Border.all(
+          color: const Color(0xFFE0D9CD),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 13, color: const Color(0xFF2F6541)),
+          Icon(
+            icon,
+            size: 13,
+            color: const Color(0xFF2F6541),
+          ),
           const SizedBox(width: 5),
           Text(
             text,
