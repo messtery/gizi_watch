@@ -10,6 +10,10 @@ class AppTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final TextInputType keyboardType;
 
+  // Tambahan untuk validasi langsung saat mengetik
+  final String? errorText;
+  final ValueChanged<String>? onChanged;
+
   const AppTextField({
     super.key,
     required this.label,
@@ -20,6 +24,10 @@ class AppTextField extends StatelessWidget {
     this.onTogglePassword,
     this.validator,
     this.keyboardType = TextInputType.text,
+
+    // Optional, jadi RegisterPage tetap aman
+    this.errorText,
+    this.onChanged,
   });
 
   @override
@@ -35,22 +43,39 @@ class AppTextField extends StatelessWidget {
             color: Color(0xFF183C28),
           ),
         ),
+
         const SizedBox(height: 7),
+
         TextFormField(
           controller: controller,
           obscureText: obscureText,
           keyboardType: keyboardType,
           validator: validator,
-          style: const TextStyle(fontSize: 14, color: Color(0xFF183C28)),
+          onChanged: onChanged,
+
+          style: const TextStyle(
+            fontSize: 14,
+            color: Color(0xFF183C28),
+          ),
+
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Color(0xFF9A958B), fontSize: 13),
+
+            hintStyle: const TextStyle(
+              color: Color(0xFF9A958B),
+              fontSize: 13,
+            ),
+
+            errorText: errorText,
+
             filled: true,
             fillColor: Colors.white,
+
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 14,
             ),
+
             suffixIcon: isPassword
                 ? TextButton(
                     onPressed: onTogglePassword,
@@ -64,10 +89,14 @@ class AppTextField extends StatelessWidget {
                     ),
                   )
                 : null,
+
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(11),
-              borderSide: const BorderSide(color: Color(0xFFE2DDD2)),
+              borderSide: const BorderSide(
+                color: Color(0xFFE2DDD2),
+              ),
             ),
+
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(
@@ -75,10 +104,14 @@ class AppTextField extends StatelessWidget {
                 width: 1.5,
               ),
             ),
+
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(11),
-              borderSide: const BorderSide(color: Color(0xFFC96C4A)),
+              borderSide: const BorderSide(
+                color: Color(0xFFC96C4A),
+              ),
             ),
+
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(11),
               borderSide: const BorderSide(
