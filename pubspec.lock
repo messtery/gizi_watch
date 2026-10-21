@@ -65,6 +65,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
+<<<<<<< HEAD
   cupertino_ui:
     dependency: transitive
     description:
@@ -73,6 +74,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+=======
+>>>>>>> 82d220d (Add nutrition page)
   fake_async:
     dependency: transitive
     description:
@@ -116,10 +119,17 @@ packages:
     dependency: "direct main"
     description:
       name: google_fonts
+<<<<<<< HEAD
       sha256: fdbbfbbb1a62f376ab29fa9627561d389751fb984da0b630ce3326e272911c8a
       url: "https://pub.dev"
     source: hosted
     version: "9.0.0"
+=======
+      sha256: ba03d03bcaa2f6cb7bd920e3b5027181db75ab524f8891c8bc3aa603885b8055
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.3.3"
+>>>>>>> 82d220d (Add nutrition page)
   hooks:
     dependency: transitive
     description:
@@ -144,6 +154,7 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+<<<<<<< HEAD
   intl:
     dependency: transitive
     description:
@@ -152,6 +163,8 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.20.3"
+=======
+>>>>>>> 82d220d (Add nutrition page)
   jni:
     dependency: transitive
     description:
@@ -164,10 +177,17 @@ packages:
     dependency: transitive
     description:
       name: jni_flutter
+<<<<<<< HEAD
       sha256: b2310cdd4c18c65c081ab141a41efa94aa26c65431803703ece51996f174f351
       url: "https://pub.dev"
     source: hosted
     version: "1.0.3"
+=======
+      sha256: "0dd33d67797560f66e961a6053882d4df54bd345bf063b8fe7ea133f7ad8b191"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4+1"
+>>>>>>> 82d220d (Add nutrition page)
   jni_util:
     dependency: transitive
     description:
@@ -455,4 +475,8 @@ packages:
     version: "3.1.4"
 sdks:
   dart: ">=3.13.5 <4.0.0"
+<<<<<<< HEAD
   flutter: ">=3.47.0"
+=======
+  flutter: ">=3.38.4"
+>>>>>>> 82d220d (Add nutrition page)
