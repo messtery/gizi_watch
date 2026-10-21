@@ -22,7 +22,7 @@ class GiziWatchApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2F6541)),
         fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
       ),
-      home: const DiaryPage(),
+      home: const LoginPage(),
     );
   }
 }
