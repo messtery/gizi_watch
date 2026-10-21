@@ -10,7 +10,7 @@ class AboutYouPage extends StatefulWidget {
 
 enum Gender { female, male }
 
-enum LifeStage { child, teen, adult, elderly, pregnant, breastfeeding }
+enum LifeStage { pregnant, breastfeeding }
 
 class _AboutYouPageState extends State<AboutYouPage> {
   // Form Controllers
@@ -21,7 +21,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
 
   // Selection States
   Gender _selectedGender = Gender.female;
-  LifeStage _selectedLifeStage = LifeStage.adult;
+  LifeStage? _selectedLifeStage; // Optional state (can be null)
 
   @override
   void dispose() {
@@ -49,7 +49,6 @@ class _AboutYouPageState extends State<AboutYouPage> {
               // Row 1: Header (Back Button, Step Progress Bar, Counter Text)
               Row(
                 children: [
-                  // Back Button
                   Container(
                     width: 40,
                     height: 40,
@@ -65,7 +64,6 @@ class _AboutYouPageState extends State<AboutYouPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Progress Bar
                   Expanded(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
@@ -78,7 +76,6 @@ class _AboutYouPageState extends State<AboutYouPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Counter Text
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
@@ -98,7 +95,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
                 ],
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               // Scrollable Form Content
               Expanded(
@@ -126,55 +123,39 @@ class _AboutYouPageState extends State<AboutYouPage> {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
-                      // Row 3: User Details (2 Columns per Row)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildInputField(
-                              label: 'Full Name',
-                              placeholder: 'e.g. Alex',
-                              controller: _nameController,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildInputField(
-                              label: 'Date of Birth',
-                              placeholder: 'DD / MM / YYYY',
-                              controller: _dobController,
-                              suffixIcon: Icons.calendar_today_outlined,
-                            ),
-                          ),
-                        ],
+                      // User Details (Restructured to 1 Column for clarity)
+                      _buildInputField(
+                        label: 'Full Name',
+                        placeholder: 'e.g. Alex',
+                        controller: _nameController,
                       ),
                       const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildInputField(
-                              label: 'Height (cm)',
-                              placeholder: '170',
-                              controller: _heightController,
-                              keyboardType: TextInputType.number,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildInputField(
-                              label: 'Weight (kg)',
-                              placeholder: '65',
-                              controller: _weightController,
-                              keyboardType: TextInputType.number,
-                            ),
-                          ),
-                        ],
+                      _buildInputField(
+                        label: 'Date of Birth',
+                        placeholder: 'DD / MM / YYYY',
+                        controller: _dobController,
+                        suffixIcon: Icons.calendar_today_outlined,
+                      ),
+                      const SizedBox(height: 14),
+                      _buildInputField(
+                        label: 'Height (cm)',
+                        placeholder: '170',
+                        controller: _heightController,
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 14),
+                      _buildInputField(
+                        label: 'Weight (kg)',
+                        placeholder: '65',
+                        controller: _weightController,
+                        keyboardType: TextInputType.number,
                       ),
 
                       const SizedBox(height: 20),
 
-                      // Row 4: Gender Selection (2 Columns)
+                      // Biological Gender Selection (2 Columns)
                       const Text(
                         'Biological Gender',
                         style: TextStyle(
@@ -208,9 +189,9 @@ class _AboutYouPageState extends State<AboutYouPage> {
 
                       const SizedBox(height: 20),
 
-                      // Row 5: Life Stage Selection (3 Columns Grid)
+                      // Optional Physiological State (1 Column List)
                       const Text(
-                        'Life Stage / Physiological State',
+                        'Special Physiological State (Optional)',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -218,23 +199,22 @@ class _AboutYouPageState extends State<AboutYouPage> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 10,
-                        crossAxisSpacing: 10,
-                        childAspectRatio: 1.1,
-                        children: [
-                          _buildGridCard('Child', Icons.child_care, LifeStage.child),
-                          _buildGridCard('Teen', Icons.face, LifeStage.teen),
-                          _buildGridCard('Adult', Icons.person, LifeStage.adult),
-                          _buildGridCard('Elderly', Icons.elderly, LifeStage.elderly),
-                          _buildGridCard('Pregnant', Icons.pregnant_woman, LifeStage.pregnant),
-                          _buildGridCard('Nursing', Icons.favorite, LifeStage.breastfeeding),
-                        ],
+
+                      _buildLifeStageOption(
+                        stage: LifeStage.pregnant,
+                        title: 'Pregnant',
+                        description: 'Caloric, folate, and iron targets will be increased based on gestational needs.',
+                        icon: Icons.pregnant_woman,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
+                      _buildLifeStageOption(
+                        stage: LifeStage.breastfeeding,
+                        title: 'Nursing / Breastfeeding',
+                        description: 'Energy, protein, and fluid recommendations will be adjusted for milk production.',
+                        icon: Icons.favorite,
+                      ),
+
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
@@ -245,7 +225,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
                 padding: const EdgeInsets.only(top: 8.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate or submit form
+                    // Submit or navigate
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
@@ -305,7 +285,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
             hintStyle: TextStyle(color: const Color(0xFF1C1F1A).withValues(alpha: 0.35)),
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             suffixIcon: suffixIcon != null
                 ? Icon(suffixIcon, size: 18, color: const Color(0xFF2F5D3A))
                 : null,
@@ -323,7 +303,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
     );
   }
 
-  // Horizontal Card Helper (Gender)
+  // Gender Card Helper
   Widget _buildSelectableCard({
     required String label,
     required IconData icon,
@@ -369,16 +349,27 @@ class _AboutYouPageState extends State<AboutYouPage> {
     );
   }
 
-  // Grid Card Helper (Life Stage)
-  Widget _buildGridCard(String label, IconData icon, LifeStage stage) {
+  // Single-Line Optional Physiological State Option
+  Widget _buildLifeStageOption({
+    required LifeStage stage,
+    required String title,
+    required String description,
+    required IconData icon,
+  }) {
     final isSelected = _selectedLifeStage == stage;
     const primaryColor = Color(0xFF2F5D3A);
     const borderColor = Color(0xFFE2DEC3);
 
     return InkWell(
-      onTap: () => setState(() => _selectedLifeStage = stage),
+      onTap: () {
+        setState(() {
+          // Toggle selection (allows deselecting)
+          _selectedLifeStage = isSelected ? null : stage;
+        });
+      },
       borderRadius: BorderRadius.circular(12),
       child: Container(
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected ? primaryColor.withValues(alpha: 0.12) : Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -387,21 +378,37 @@ class _AboutYouPageState extends State<AboutYouPage> {
             width: isSelected ? 1.5 : 1.0,
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
               icon,
-              size: 22,
+              size: 20,
               color: isSelected ? primaryColor : const Color(0xFF1C1F1A).withValues(alpha: 0.6),
             ),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                color: isSelected ? primaryColor : const Color(0xFF1C1F1A),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                      color: isSelected ? primaryColor : const Color(0xFF1C1F1A),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: const Color(0xFF1C1F1A).withValues(alpha: 0.65),
+                      height: 1.3,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
