@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'pages/login_page.dart';
 
@@ -18,7 +19,7 @@ class GiziWatchApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFFF7F3E9),
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2F6541)),
-        fontFamily: 'sans-serif',
+        fontFamily: GoogleFonts.plusJakartaSans().fontFamily,
       ),
       home: const LoginPage(),
     );

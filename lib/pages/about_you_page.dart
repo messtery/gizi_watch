@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AboutYouPage extends StatefulWidget {
   const AboutYouPage({Key? key}) : super(key: key);
@@ -107,10 +108,9 @@ class _AboutYouPageState extends State<AboutYouPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Row 2: Page Title & Description
-                      const Text(
+                      Text(
                         'About You',
-                        style: TextStyle(
-                          fontFamily: 'Fraunces',
+                        style: GoogleFonts.fraunces(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: textColor,
