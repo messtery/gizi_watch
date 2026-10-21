@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'pages/login_page.dart';
+import 'pages/diary_page.dart';
 
 void main() {
   runApp(const GiziWatchApp());
