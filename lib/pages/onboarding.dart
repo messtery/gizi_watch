@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../pages/register_page.dart';
+import 'register_page.dart';
+import 'login_page.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
@@ -239,11 +240,10 @@ class OnboardingPage extends StatelessWidget {
                             height: 52,
                             child: OutlinedButton(
                               onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Halaman Log In belum tersedia.',
-                                    ),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const LoginPage(),
                                   ),
                                 );
                               },

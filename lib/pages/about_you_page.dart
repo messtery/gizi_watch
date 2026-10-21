@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AboutYouPage extends StatefulWidget {
-  const AboutYouPage({Key? key}) : super(key: key);
+  const AboutYouPage({super.key});
 
   @override
   State<AboutYouPage> createState() => _AboutYouPageState();
@@ -121,7 +121,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
                         'Tell us a bit about yourself so we can personalize your daily nutrition targets.',
                         style: TextStyle(
                           fontSize: 13,
-                          color: textColor.withOpacity(0.7),
+                          color: textColor.withValues(alpha: 0.7),
                           height: 1.4,
                         ),
                       ),
@@ -302,7 +302,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
           style: const TextStyle(fontSize: 13, color: Color(0xFF1C1F1A)),
           decoration: InputDecoration(
             hintText: placeholder,
-            hintStyle: TextStyle(color: const Color(0xFF1C1F1A).withOpacity(0.35)),
+            hintStyle: TextStyle(color: const Color(0xFF1C1F1A).withValues(alpha: 0.35)),
             filled: true,
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -339,7 +339,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withOpacity(0.12) : Colors.white,
+          color: isSelected ? primaryColor.withValues(alpha: 0.12) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? primaryColor : borderColor,
@@ -352,7 +352,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
             Icon(
               icon,
               size: 18,
-              color: isSelected ? primaryColor : const Color(0xFF1C1F1A).withOpacity(0.7),
+              color: isSelected ? primaryColor : const Color(0xFF1C1F1A).withValues(alpha: 0.7),
             ),
             const SizedBox(width: 8),
             Text(
@@ -380,7 +380,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
       borderRadius: BorderRadius.circular(12),
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withOpacity(0.12) : Colors.white,
+          color: isSelected ? primaryColor.withValues(alpha: 0.12) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? primaryColor : borderColor,
@@ -393,7 +393,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
             Icon(
               icon,
               size: 22,
-              color: isSelected ? primaryColor : const Color(0xFF1C1F1A).withOpacity(0.6),
+              color: isSelected ? primaryColor : const Color(0xFF1C1F1A).withValues(alpha: 0.6),
             ),
             const SizedBox(height: 6),
             Text(

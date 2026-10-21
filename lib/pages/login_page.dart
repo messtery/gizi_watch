@@ -5,6 +5,9 @@ import '../widgets/app_text_field.dart';
 import '../widgets/footer_widget.dart';
 import '../widgets/primary_button.dart';
 
+import 'onboarding.dart';
+import 'register_page.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -15,11 +18,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController emailController =
-      TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
-  final TextEditingController passwordController =
-      TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   bool rememberMe = false;
   bool showPassword = false;
@@ -50,9 +51,7 @@ class _LoginPageState extends State<LoginPage> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 29,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 29),
             child: Form(
               key: _formKey,
               child: Column(
@@ -72,7 +71,12 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: IconButton(
                       onPressed: () {
-                        Navigator.maybePop(context);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const OnboardingPage(),
+                          ),
+                        );
                       },
                       padding: EdgeInsets.zero,
                       icon: const Icon(
@@ -88,9 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                   // =========================
                   const SizedBox(height: 24),
 
-                  const AppLogo(
-                    size: 96,
-                  ),
+                  const AppLogo(size: 96),
 
                   // =========================
                   // TITLE
@@ -143,11 +145,8 @@ class _LoginPageState extends State<LoginPage> {
                           caseSensitive: false,
                         );
 
-                        if (!emailRegex.hasMatch(
-                          value.trim(),
-                        )) {
-                          emailError =
-                              'Please enter a valid email address';
+                        if (!emailRegex.hasMatch(value.trim())) {
+                          emailError = 'Please enter a valid email address';
                         } else {
                           emailError = null;
                         }
@@ -155,8 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
 
                     validator: (value) {
-                      if (value == null ||
-                          value.trim().isEmpty) {
+                      if (value == null || value.trim().isEmpty) {
                         return 'Please enter your email';
                       }
 
@@ -165,9 +163,7 @@ class _LoginPageState extends State<LoginPage> {
                         caseSensitive: false,
                       );
 
-                      if (!emailRegex.hasMatch(
-                        value.trim(),
-                      )) {
+                      if (!emailRegex.hasMatch(value.trim())) {
                         return 'Please enter a valid email address';
                       }
 
@@ -196,8 +192,7 @@ class _LoginPageState extends State<LoginPage> {
                     },
 
                     validator: (value) {
-                      if (value == null ||
-                          value.isEmpty) {
+                      if (value == null || value.isEmpty) {
                         return 'Please enter your password';
                       }
 
@@ -211,8 +206,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 15),
 
                   Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
@@ -223,25 +217,20 @@ class _LoginPageState extends State<LoginPage> {
                               value: rememberMe,
                               onChanged: (value) {
                                 setState(() {
-                                  rememberMe =
-                                      value ?? false;
+                                  rememberMe = value ?? false;
                                 });
                               },
-                              activeColor:
-                                  const Color(0xFF2F5D3A),
+                              activeColor: const Color(0xFF2F5D3A),
                               checkColor: Colors.white,
                               side: const BorderSide(
                                 color: Color(0xFF2F5D3A),
                                 width: 1.5,
                               ),
-                              shape:
-                                  RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4),
                               ),
                               materialTapTargetSize:
-                                  MaterialTapTargetSize
-                                      .shrinkWrap,
+                                  MaterialTapTargetSize.shrinkWrap,
                             ),
                           ),
 
@@ -266,10 +255,8 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextStyle(
                             fontSize: 12,
                             color: Color(0xFF477052),
-                            decoration:
-                                TextDecoration.underline,
-                            decorationColor:
-                                Color(0xFF477052),
+                            decoration: TextDecoration.underline,
+                            decorationColor: Color(0xFF477052),
                           ),
                         ),
                       ),
@@ -281,10 +268,7 @@ class _LoginPageState extends State<LoginPage> {
                   // =========================
                   const SizedBox(height: 88),
 
-                  PrimaryButton(
-                    text: 'Log in',
-                    onPressed: _login,
-                  ),
+                  PrimaryButton(text: 'Log in', onPressed: _login),
 
                   // =========================
                   // FOOTER
@@ -294,8 +278,12 @@ class _LoginPageState extends State<LoginPage> {
                   FooterWidget(
                     isLoginPage: true,
                     onSignUpPressed: () {
-                      // Navigasi ke RegisterPage
-                      // akan ditambahkan nanti.
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RegisterPage(),
+                        ),
+                      );
                     },
                   ),
 

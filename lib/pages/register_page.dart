@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'login_page.dart';
+
 import '../widgets/app_text_field.dart';
 import '../widgets/footer_widget.dart';
 import '../widgets/nutrition_orbit.dart';
@@ -145,7 +147,17 @@ class _RegisterPageState extends State<RegisterPage> {
 
                         const SizedBox(height: 20),
 
-                        const FooterWidget(),
+                        FooterWidget(
+                          isLoginPage: false,
+                          onLoginPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginPage(),
+                              ),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -284,51 +296,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
             ),
-
-            const SizedBox(height: 15),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildInfoChip(Icons.restaurant_outlined, 'Track meals'),
-                const SizedBox(width: 8),
-                _buildInfoChip(Icons.insights_outlined, 'Know your needs'),
-              ],
-            ),
           ],
         ),
       ],
-    );
-  }
-
-  Widget _buildInfoChip(IconData icon, String text) {
-    return Flexible(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.75),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFE5E0D5)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 15, color: const Color(0xFF2F6541)),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                text,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF526052),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
