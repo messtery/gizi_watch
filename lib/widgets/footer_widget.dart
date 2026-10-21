@@ -117,7 +117,7 @@ class FooterWidget extends StatelessWidget {
           '© 2026 GiziWatch',
           style: TextStyle(
             fontSize: 10,
-            color: const Color(0xFF777269).withOpacity(0.7),
+            color: const Color(0xFF777269).withValues(alpha: 0.7),
           ),
         ),
       ],
@@ -217,7 +217,7 @@ class _FooterPill extends StatelessWidget {
         vertical: 7,
       ),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.7),
+        color: Colors.white.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: const Color(0xFFE0D9CD),
