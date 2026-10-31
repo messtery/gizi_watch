@@ -14,6 +14,7 @@ class BodyPage extends StatefulWidget {
 class _BodyPageState extends State<BodyPage> {
   List<Measurement> measurements = [];
   bool isLoading = true;
+  int selectedNavIndex = 2; // Body menjadi tab yang pertama kali dibuka.
   Measurement? get latestMeasurement {
     if (measurements.isEmpty) return null;
     return measurements.first;
@@ -134,6 +135,8 @@ class _BodyPageState extends State<BodyPage> {
   }
   @override
   Widget build(BuildContext context) {
+    final isBodyTab = selectedNavIndex == 2;
+
     return Scaffold(
       backgroundColor: cream,
       body: SafeArea(
@@ -141,36 +144,149 @@ class _BodyPageState extends State<BodyPage> {
             ? const Center(
                 child: CircularProgressIndicator(color: green),
               )
-            : CustomScrollView(
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        _buildHeader(),
-                        const SizedBox(height: 22),
-                        _buildBmiCard(),
-                        const SizedBox(height: 22),
-                        _buildProgressSection(),
-                        const SizedBox(height: 22),
-                        _buildHistorySection(),
-                      ]),
-                    ),
-                  ),
-                ],
-              ),
+            : isBodyTab
+                ? CustomScrollView(
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
+                            _buildHeader(),
+                            const SizedBox(height: 22),
+                            _buildBmiCard(),
+                            const SizedBox(height: 22),
+                            _buildProgressSection(),
+                            const SizedBox(height: 22),
+                            _buildHistorySection(),
+                          ]),
+                        ),
+                      ),
+                    ],
+                  )
+                : _buildComingSoonPage(),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => openMeasurementForm(),
-        backgroundColor: green,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        icon: const Icon(Icons.add),
-        label: const Text(
-          'Add Measurement',
-          style: TextStyle(
-            fontFamily: 'Georgia',
-            fontWeight: FontWeight.w600),
+      floatingActionButton: isBodyTab
+          ? FloatingActionButton.extended(
+              onPressed: () => openMeasurementForm(),
+              backgroundColor: green,
+              foregroundColor: Colors.white,
+              elevation: 3,
+              icon: const Icon(Icons.add),
+              label: const Text(
+                'Add Measurement',
+                style: TextStyle(
+                  fontFamily: 'Georgia',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            )
+          : null,
+      bottomNavigationBar: _buildBottomNavigationBar(),
+    );
+  }
+
+  Widget _buildBottomNavigationBar() {
+    const items = [
+      _NavigationItem(label: 'Home', icon: Icons.home_outlined),
+      _NavigationItem(label: 'Diary', icon: Icons.menu_book_outlined),
+      _NavigationItem(label: 'Body', icon: Icons.monitor_weight_outlined),
+      _NavigationItem(label: 'Recipes', icon: Icons.restaurant_menu_outlined),
+      _NavigationItem(label: 'News', icon: Icons.newspaper_outlined),
+    ];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(color: beige.withValues(alpha: 0.8), width: 0.8),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 66,
+          child: Row(
+            children: List.generate(items.length, (index) {
+              final item = items[index];
+              final isSelected = selectedNavIndex == index;
+              return Expanded(
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      selectedNavIndex = index;
+                    });
+                  },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        item.icon,
+                        size: 25,
+                        color: isSelected ? green : textGrey,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        item.label,
+                        style: TextStyle(
+                          fontFamily: 'Georgia',
+                          fontSize: 10.5,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? green : textGrey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildComingSoonPage() {
+    const titles = ['Home', 'Diary', '', 'Recipes', 'News'];
+    final title = titles[selectedNavIndex];
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              selectedNavIndex == 0
+                  ? Icons.home_outlined
+                  : selectedNavIndex == 1
+                      ? Icons.menu_book_outlined
+                      : selectedNavIndex == 3
+                          ? Icons.restaurant_menu_outlined
+                          : Icons.newspaper_outlined,
+              color: green,
+              size: 48,
+            ),
+            const SizedBox(height: 14),
+            Text(
+              title,
+              style: const TextStyle(
+                fontFamily: 'Georgia',
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: darkGreen,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'This page will be available soon.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Georgia',
+                fontSize: 13,
+                color: textGrey,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -804,6 +920,13 @@ fontSize: 14,
     );
   }
 }
+class _NavigationItem {
+  final String label;
+  final IconData icon;
+
+  const _NavigationItem({required this.label, required this.icon});
+}
+
 // --------------------------------------------------
 // MEASUREMENT MODEL
 // --------------------------------------------------
