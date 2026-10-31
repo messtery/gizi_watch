@@ -551,38 +551,7 @@ letterSpacing: -1.2,
       ),
     );
   }
-  Widget _infoItem(String label, String value, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, color: green, size: 21),
-        const SizedBox(width: 9),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-            fontFamily: 'Georgia',
-            fontWeight: FontWeight.bold,
-                color: textGrey,
-                fontSize: 12,
-              ),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              value,
-              style: const TextStyle(
-            fontFamily: 'Georgia',
-            fontWeight: FontWeight.bold,
-                color: darkGreen,
-                fontSize: 15,
-),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+
   Widget _buildProgressSection() {
     final change = getWeightChange();
     return Container(
