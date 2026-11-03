@@ -3,6 +3,11 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../widgets/food_diary_widgets.dart';
+import '../widgets/bottom_nav_bar.dart';
+import 'home_page.dart';
+import 'body_page.dart';
+import 'recipe_page.dart';
+import 'news_page.dart';
 
 class DiaryPage extends StatefulWidget {
   const DiaryPage({super.key});
@@ -18,7 +23,6 @@ class _DiaryPageState extends State<DiaryPage> {
   static const double carbsTarget = 300;
 
   DateTime _selectedDate = DateTime.now();
-  String _activeTab = 'Diary';
   int _nextEntryId = 10;
 
   late final Map<String, List<DiaryEntry>> _entriesByDate = {
@@ -189,7 +193,56 @@ class _DiaryPageState extends State<DiaryPage> {
 
     return Scaffold(
       backgroundColor: diaryCream,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: diaryCream,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        toolbarHeight: 76,
+        titleSpacing: 16,
+        title: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: diaryGreen,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: const Icon(Icons.eco_outlined, color: Colors.white, size: 24),
+            ),
+            const SizedBox(width: 11),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'GiziWatch',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: diaryGreen,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'Food diary',
+                  style: TextStyle(
+                    fontSize: 23,
+                    color: diaryDarkGreen,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.6,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
+        top: false,
         child: LayoutBuilder(
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= 700;
@@ -201,18 +254,16 @@ class _DiaryPageState extends State<DiaryPage> {
                     SliverPadding(
                       padding: EdgeInsets.fromLTRB(
                         wide ? 28 : 16,
-                        12,
+                        8,
                         wide ? 28 : 16,
-                        28,
+                        12,
                       ),
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
-                          _buildHeader(),
-                          const SizedBox(height: 16),
                           _buildDatePicker(),
                           const SizedBox(height: 12),
                           _buildSummaryCard(consumed, remaining, progress),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 16),
                           if (wide)
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,50 +294,26 @@ class _DiaryPageState extends State<DiaryPage> {
           },
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigation(),
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: 1,
+        onTap: (index) {
+          final pages = <Widget>[
+            const HomePage(),
+            const DiaryPage(),
+            const BodyPage(),
+            const RecipePage(),
+            const NewsPage(),
+          ];
+          if (index != 1) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => pages[index]),
+            );
+          }
+        },
+      ),
     );
   }
-
-  Widget _buildHeader() => Row(
-    children: [
-      Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: diaryGreen,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: const Icon(Icons.eco_outlined, color: Colors.white, size: 24),
-      ),
-      const SizedBox(width: 11),
-      const Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'GiziWatch',
-              style: TextStyle(
-                fontSize: 12,
-                color: diaryGreen,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.4,
-              ),
-            ),
-            SizedBox(height: 2),
-            Text(
-              'Food diary',
-              style: TextStyle(
-                fontSize: 23,
-                color: diaryDarkGreen,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.6,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ],
-  );
 
   Widget _buildDatePicker() => Container(
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -500,7 +527,7 @@ class _DiaryPageState extends State<DiaryPage> {
   }
 
   Widget _buildNutritionNote() => Container(
-    margin: const EdgeInsets.only(top: 2, bottom: 90),
+    margin: const EdgeInsets.only(top: 2, bottom: 8),
     padding: const EdgeInsets.all(13),
     decoration: BoxDecoration(
       color: const Color(0xFFEAF0E5),
@@ -520,68 +547,6 @@ class _DiaryPageState extends State<DiaryPage> {
       ],
     ),
   );
-
-  Widget _buildBottomNavigation() => Container(
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      border: Border(top: BorderSide(color: diaryLine)),
-    ),
-    child: SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _navItem('Home', Icons.home_outlined),
-            _navItem('Diary', Icons.menu_book_outlined),
-            _navItem('Body', Icons.monitor_weight_outlined),
-            _navItem('Recipes', Icons.soup_kitchen_outlined),
-            _navItem('News', Icons.newspaper_outlined),
-          ],
-        ),
-      ),
-    ),
-  );
-
-  Widget _navItem(String label, IconData icon) {
-    final selected = _activeTab == label;
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: () {
-        setState(() => _activeTab = label);
-        if (label != 'Diary') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '$label akan dihubungkan ke halaman GiziWatch berikutnya.',
-              ),
-              behavior: SnackBarBehavior.floating,
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 20, color: selected ? diaryGreen : Colors.black45),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                color: selected ? diaryGreen : Colors.black45,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _showNutritionDetails() {
     showModalBottomSheet<void>(
@@ -706,11 +671,10 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
   late FoodItem _selectedFood = widget.initialFood ?? foodCatalog.first;
   late String _selectedMeal = widget.initialMeal;
   late double _grams = widget.initialGrams.clamp(10, 1000).toDouble();
-  final TextEditingController _gramsController = TextEditingController();
-  final TextEditingController _searchController = TextEditingController();
+  String? _expandedFoodId;
   String _query = '';
   String _category = 'Semua';
-  bool _hasExpandedFood = false;
+  final TextEditingController _gramsController = TextEditingController();
 
   static const categories = [
     'Semua',
@@ -722,27 +686,31 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
     'Masakan',
     'Camilan',
   ];
+
   static const meals = ['Sarapan', 'Makan siang', 'Makan malam', 'Camilan'];
 
   @override
   void initState() {
     super.initState();
     _gramsController.text = _grams.round().toString();
-    _hasExpandedFood = widget.initialFood != null;
+    _expandedFoodId = widget.initialFood?.id;
   }
 
   @override
   void dispose() {
     _gramsController.dispose();
-    _searchController.dispose();
     super.dispose();
   }
 
-  List<FoodItem> get _filteredFoods => foodCatalog.where((food) {
-    final matchesQuery = food.name.toLowerCase().contains(_query.toLowerCase());
-    final matchesCategory = _category == 'Semua' || food.category == _category;
-    return matchesQuery && matchesCategory;
-  }).toList();
+  List<FoodItem> get _filteredFoods {
+    return foodCatalog.where((food) {
+      final matchesQuery =
+          food.name.toLowerCase().contains(_query.toLowerCase());
+      final matchesCategory =
+          _category == 'Semua' || food.category == _category;
+      return matchesQuery && matchesCategory;
+    }).toList();
+  }
 
   void _setGrams(double value) {
     final safe = value.clamp(10, 1000).toDouble();
@@ -752,200 +720,255 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
     });
   }
 
-  void _selectFood(FoodItem food) {
+  void _toggleFood(FoodItem food) {
     setState(() {
-      if (_hasExpandedFood && _selectedFood.id == food.id) {
-        _hasExpandedFood = false;
+      if (_expandedFoodId == food.id) {
+        _expandedFoodId = null;
       } else {
+        _expandedFoodId = food.id;
         _selectedFood = food;
-        _hasExpandedFood = true;
-        _grams = 100;
-        _gramsController.text = '100';
       }
     });
   }
 
-  Widget _buildExpandedDetails() => Container(
-    padding: const EdgeInsets.fromLTRB(12, 4, 12, 14),
-    decoration: const BoxDecoration(
-      color: Color(0xFFEAF0E5),
-      borderRadius: BorderRadius.vertical(bottom: Radius.circular(13)),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            const Expanded(
-              child: Text(
-                'Porsi makanan',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: diaryDarkGreen,
-                ),
+  Widget _buildFoodAccordion(FoodItem food) {
+    final expanded = _expandedFoodId == food.id;
+    final selected = _selectedFood.id == food.id;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: expanded ? diaryGreen : diaryLine,
+          width: expanded ? 1.4 : 1,
+        ),
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () => _toggleFood(food),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEAF0E5),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: const Icon(
+                      Icons.restaurant_outlined,
+                      color: diaryGreen,
+                      size: 19,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          food.name,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: diaryDarkGreen,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          '${food.category} • ${food.kcalPer100g.round()} kcal / 100 g',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 7),
+                  Icon(
+                    expanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: diaryGreen,
+                    size: 22,
+                  ),
+                ],
               ),
             ),
-            SizedBox(
-              width: 88,
-              child: TextField(
-                controller: _gramsController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: false,
-                ),
-                textAlign: TextAlign.center,
-                onChanged: (value) {
-                  final parsed = double.tryParse(value);
-                  if (parsed != null && parsed >= 10 && parsed <= 1000) {
-                    setState(() => _grams = parsed);
-                  }
-                },
-                decoration: InputDecoration(
-                  suffixText: 'g',
-                  isDense: true,
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 10,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        Slider(
-          value: _grams.clamp(10, 1000).toDouble(),
-          min: 10,
-          max: 1000,
-          divisions: 99,
-          activeColor: diaryGreen,
-          onChanged: _setGrams,
-        ),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(11),
           ),
-          child: Row(
-            children: [
-              const Icon(
-                Icons.local_fire_department_outlined,
-                color: diaryTerracotta,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${formatGram(_grams)} g • estimasi energi',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.black54,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeInOut,
+            child: expanded
+                ? Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(13, 2, 13, 13),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8F7F1),
+                      borderRadius: BorderRadius.vertical(
+                        bottom: Radius.circular(13),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              Text(
-                '${_selectedFood.kcalFor(_grams).round()} kcal',
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w900,
-                  color: diaryGreen,
-                ),
-              ),
-            ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Divider(color: diaryLine, height: 14),
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'Jumlah porsi',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: diaryDarkGreen,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 88,
+                              child: TextField(
+                                controller: _gramsController,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                  decimal: false,
+                                ),
+                                textAlign: TextAlign.center,
+                                onChanged: (value) {
+                                  final parsed = double.tryParse(value);
+                                  if (parsed != null &&
+                                      parsed >= 10 &&
+                                      parsed <= 1000) {
+                                    setState(() => _grams = parsed);
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                  suffixText: 'g',
+                                  isDense: true,
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 8,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(9),
+                                    borderSide:
+                                        const BorderSide(color: diaryLine),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(9),
+                                    borderSide:
+                                        const BorderSide(color: diaryLine),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Slider(
+                          value: _grams.clamp(10, 1000).toDouble(),
+                          min: 10,
+                          max: 1000,
+                          divisions: 99,
+                          activeColor: diaryGreen,
+                          onChanged: _setGrams,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 11,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(11),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.local_fire_department_outlined,
+                                color: diaryTerracotta,
+                                size: 19,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '${food.kcalPer100g.round()} kcal / 100 g',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.black54,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Estimasi untuk ${formatGram(_grams)} g',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: diaryDarkGreen,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                '${food.kcalFor(_grams).round()} kcal',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w900,
+                                  color: diaryGreen,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 9),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton.icon(
+                            onPressed: () {
+                              setState(() => _selectedFood = food);
+                            },
+                            icon: Icon(
+                              selected
+                                  ? Icons.check_circle
+                                  : Icons.radio_button_unchecked,
+                              size: 16,
+                            ),
+                            label: Text(
+                              selected ? 'Makanan dipilih' : 'Pilih makanan ini',
+                            ),
+                            style: TextButton.styleFrom(
+                              foregroundColor: diaryGreen,
+                              textStyle: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            const Text(
-              'Waktu makan',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: diaryDarkGreen,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: DropdownButtonFormField<String>(
-                value: _selectedMeal,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 11,
-                    vertical: 8,
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                items: meals
-                    .map(
-                      (meal) => DropdownMenuItem(
-                        value: meal,
-                        child: Text(meal, style: const TextStyle(fontSize: 11)),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) {
-                  if (value != null) setState(() => _selectedMeal = value);
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 11),
-        SizedBox(
-          width: double.infinity,
-          height: 43,
-          child: FilledButton.icon(
-            onPressed: () {
-              final parsed = double.tryParse(_gramsController.text);
-              final grams = parsed != null && parsed >= 10 && parsed <= 1000
-                  ? parsed
-                  : _grams;
-              widget.onSave(_selectedFood, grams, _selectedMeal);
-              Navigator.pop(context);
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: diaryGreen,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            icon: const Icon(Icons.check, size: 18),
-            label: Text(
-              widget.initialFood == null
-                  ? 'Simpan ke diary'
-                  : 'Simpan perubahan',
-              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    final foods = _filteredFoods;
 
     return Padding(
       padding: EdgeInsets.only(bottom: bottomInset),
@@ -971,7 +994,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(18, 14, 12, 10),
+                padding: const EdgeInsets.fromLTRB(18, 15, 18, 10),
                 child: Row(
                   children: [
                     Expanded(
@@ -990,7 +1013,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                           ),
                           const SizedBox(height: 3),
                           const Text(
-                            'Ketuk makanan untuk mengatur porsi dan menyimpan',
+                            'Pilih makanan untuk melihat detail dan porsinya',
                             style: TextStyle(
                               fontSize: 11,
                               color: Colors.black54,
@@ -1009,31 +1032,31 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: TextField(
-                  controller: _searchController,
                   onChanged: (value) => setState(() => _query = value),
                   decoration: InputDecoration(
                     hintText: 'Cari nasi, telur, buah...',
                     prefixIcon: const Icon(Icons.search, color: diaryGreen),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 11),
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 12),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(13),
+                      borderRadius: BorderRadius.circular(14),
                       borderSide: const BorderSide(color: diaryLine),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(13),
+                      borderRadius: BorderRadius.circular(14),
                       borderSide: const BorderSide(color: diaryLine),
                     ),
                   ),
                 ),
               ),
               SizedBox(
-                height: 47,
+                height: 48,
                 child: ListView(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 18,
-                    vertical: 7,
+                    vertical: 8,
                   ),
                   scrollDirection: Axis.horizontal,
                   children: categories
@@ -1043,12 +1066,16 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                           child: ChoiceChip(
                             label: Text(category),
                             selected: _category == category,
-                            onSelected: (_) =>
-                                setState(() => _category = category),
+                            onSelected: (_) {
+                              setState(() {
+                                _category = category;
+                                _expandedFoodId = null;
+                              });
+                            },
                             selectedColor: diaryGreen,
                             backgroundColor: Colors.white,
                             labelStyle: TextStyle(
-                              fontSize: 10,
+                              fontSize: 11,
                               color: _category == category
                                   ? Colors.white
                                   : diaryDarkGreen,
@@ -1068,82 +1095,117 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                 ),
               ),
               Expanded(
-                child: foods.isEmpty
+                child: _filteredFoods.isEmpty
                     ? const Center(
                         child: Text(
                           'Makanan tidak ditemukan. Coba kata kunci lain.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
                         ),
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(18, 2, 18, 18),
-                        itemCount: foods.length,
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 12),
+                        itemCount: _filteredFoods.length,
                         itemBuilder: (context, index) {
-                          final food = foods[index];
-                          final expanded =
-                              _hasExpandedFood && food.id == _selectedFood.id;
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: expanded ? diaryGreen : diaryLine,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                ListTile(
-                                  dense: true,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 2,
-                                  ),
-                                  onTap: () => _selectFood(food),
-                                  leading: Container(
-                                    width: 36,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: diaryCream,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Icon(
-                                      expanded
-                                          ? Icons.keyboard_arrow_up_rounded
-                                          : Icons.restaurant_outlined,
-                                      color: diaryGreen,
-                                      size: 21,
-                                    ),
-                                  ),
-                                  title: Text(
-                                    food.name,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w800,
-                                      color: diaryDarkGreen,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    '${food.category} • ${food.kcalPer100g.round()} kcal / 100 g',
-                                    style: const TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                  trailing: Icon(
-                                    expanded
-                                        ? Icons.expand_less
-                                        : Icons.expand_more,
-                                    color: expanded
-                                        ? diaryGreen
-                                        : Colors.black45,
-                                  ),
-                                ),
-                                if (expanded) _buildExpandedDetails(),
-                              ],
-                            ),
-                          );
+                          return _buildFoodAccordion(_filteredFoods[index]);
                         },
                       ),
+              ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(18, 12, 18, 16),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(top: BorderSide(color: diaryLine)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'Waktu makan',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: diaryDarkGreen,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedMeal,
+                            isExpanded: true,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 9,
+                              ),
+                              filled: true,
+                              fillColor: diaryCream,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(11),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                            items: meals
+                                .map(
+                                  (meal) => DropdownMenuItem(
+                                    value: meal,
+                                    child: Text(
+                                      meal,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() => _selectedMeal = value);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 11),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          final parsed =
+                              double.tryParse(_gramsController.text);
+                          final grams =
+                              (parsed == null || parsed < 10 || parsed > 1000)
+                                  ? _grams
+                                  : parsed;
+                          widget.onSave(
+                            _selectedFood,
+                            grams,
+                            _selectedMeal,
+                          );
+                          Navigator.pop(context);
+                        },
+                        style: FilledButton.styleFrom(
+                          backgroundColor: diaryGreen,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        icon: const Icon(Icons.check),
+                        label: Text(
+                          widget.initialFood == null
+                              ? 'Simpan ke diary'
+                              : 'Simpan perubahan',
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
