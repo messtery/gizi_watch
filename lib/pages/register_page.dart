@@ -17,7 +17,6 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
 
-  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -37,7 +36,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
-    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -306,25 +304,6 @@ class _RegisterPageState extends State<RegisterPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppTextField(
-          label: 'Full name',
-          hint: 'Your name',
-          controller: _nameController,
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Please enter your name';
-            }
-
-            if (value.trim().length < 2) {
-              return 'Name is too short';
-            }
-
-            return null;
-          },
-        ),
-
-        const SizedBox(height: 15),
-
         AppTextField(
           label: 'Email',
           hint: 'name@email.com',
