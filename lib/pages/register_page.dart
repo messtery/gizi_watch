@@ -190,55 +190,6 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
         ),
-
-        const SizedBox(width: 14),
-
-        Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2F6541),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Container(
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE2DED3),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Container(
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE2DED3),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(width: 12),
-
-        const Text(
-          '1 of 3',
-          style: TextStyle(
-            fontSize: 11,
-            color: Color(0xFF777269),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
       ],
     );
   }
