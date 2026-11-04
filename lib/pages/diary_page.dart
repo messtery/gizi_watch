@@ -147,7 +147,7 @@ class _DiaryPageState extends State<DiaryPage> {
   }
 
   Future<void> _showFoodSheet({String? meal, DiaryEntry? editing}) async {
-    await showModalBottomSheet<void>(
+    final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -155,11 +155,25 @@ class _DiaryPageState extends State<DiaryPage> {
         initialMeal: editing?.meal ?? meal ?? 'Sarapan',
         initialFood: editing?.food,
         initialGrams: editing?.grams ?? 100,
-        onSave: (food, grams, chosenMeal) {
-          _saveEntry(food, grams, chosenMeal, editingId: editing?.id);
+        onSave: (food, grams, selectedMeal) {
+          _saveEntry(food, grams, selectedMeal, editingId: editing?.id);
         },
       ),
     );
+
+    if (saved == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            editing == null
+                ? 'Makanan berhasil ditambahkan ke diary.'
+                : 'Catatan makanan berhasil diperbarui.',
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: diaryDarkGreen,
+        ),
+      );
+    }
   }
 
   Future<void> _deleteEntry(DiaryEntry entry) async {
@@ -184,11 +198,45 @@ class _DiaryPageState extends State<DiaryPage> {
       ),
     );
     if (confirmed == true) {
+      final dateKey = _dateKey(_selectedDate);
+      final previousEntries = List<DiaryEntry>.from(
+        _entriesByDate[dateKey] ?? const <DiaryEntry>[],
+      );
+      final removedIndex = previousEntries.indexWhere((e) => e.id == entry.id);
       setState(() {
-        final list = List<DiaryEntry>.from(_todayEntries)
+        _entriesByDate[dateKey] = List<DiaryEntry>.from(previousEntries)
           ..removeWhere((e) => e.id == entry.id);
-        _entriesByDate[_dateKey(_selectedDate)] = list;
       });
+
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text('${entry.food.name} dihapus dari diary.'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: diaryDarkGreen,
+            action: SnackBarAction(
+              label: 'URUNGKAN',
+              textColor: Colors.white,
+              onPressed: () {
+                if (!mounted) return;
+                setState(() {
+                  final currentEntries = List<DiaryEntry>.from(
+                    _entriesByDate[dateKey] ?? const <DiaryEntry>[],
+                  );
+                  if (!currentEntries.any((item) => item.id == entry.id)) {
+                    final insertAt = removedIndex.clamp(
+                      0,
+                      currentEntries.length,
+                    );
+                    currentEntries.insert(insertAt, entry);
+                    _entriesByDate[dateKey] = currentEntries;
+                  }
+                });
+              },
+            ),
+          ),
+        );
     }
   }
 
@@ -216,10 +264,12 @@ class _DiaryPageState extends State<DiaryPage> {
         automaticallyImplyLeading: false,
         backgroundColor: diaryCream,
         surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
+        elevation: 3,
+        scrolledUnderElevation: 3,
+        shadowColor: diaryDarkGreen.withOpacity(0.14),
         toolbarHeight: 76,
         titleSpacing: 16,
+
         title: Row(
           children: [
             Container(
@@ -263,6 +313,92 @@ class _DiaryPageState extends State<DiaryPage> {
             ),
           ],
         ),
+
+        actions: [
+          // Notification Button
+          IconButton(
+            tooltip: 'Notifications',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.white,
+                  title: const Text(
+                    'Notifications',
+                    style: TextStyle(
+                      color: diaryDarkGreen,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  content: const Text(
+                    'Belum ada notifikasi baru.',
+                    style: TextStyle(color: diaryDarkGreen),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        'Tutup',
+                        style: TextStyle(
+                          color: diaryGreen,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            icon: const Icon(
+              Icons.notifications_none_rounded,
+              color: diaryDarkGreen,
+              size: 25,
+            ),
+          ),
+
+          // Profile Button
+          IconButton(
+            tooltip: 'Profile',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.white,
+                  title: const Text(
+                    'My Profile',
+                    style: TextStyle(
+                      color: diaryDarkGreen,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  content: const Text(
+                    'Informasi profil pengguna GiziWatch.',
+                    style: TextStyle(color: diaryDarkGreen),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        'Tutup',
+                        style: TextStyle(
+                          color: diaryGreen,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+            icon: const Icon(
+              Icons.account_circle_outlined,
+              color: diaryDarkGreen,
+              size: 26,
+            ),
+          ),
+
+          const SizedBox(width: 8),
+        ],
       ),
       body: SafeArea(
         top: false,
@@ -691,8 +827,6 @@ class _AddFoodSheet extends StatefulWidget {
 }
 
 class _AddFoodSheetState extends State<_AddFoodSheet> {
-  late FoodItem _selectedFood = widget.initialFood ?? foodCatalog.first;
-  late String _selectedMeal = widget.initialMeal;
   late double _grams = widget.initialGrams.clamp(10, 1000).toDouble();
   String? _expandedFoodId;
   String _query = '';
@@ -709,8 +843,6 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
     'Masakan',
     'Camilan',
   ];
-
-  static const meals = ['Sarapan', 'Makan siang', 'Makan malam', 'Camilan'];
 
   @override
   void initState() {
@@ -746,19 +878,29 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
 
   void _toggleFood(FoodItem food) {
     setState(() {
-      if (_expandedFoodId == food.id) {
-        _expandedFoodId = null;
-      } else {
-        _expandedFoodId = food.id;
-        _selectedFood = food;
-      }
+      _expandedFoodId = _expandedFoodId == food.id ? null : food.id;
     });
+  }
+
+  void _saveFood(FoodItem food) {
+    final parsed = double.tryParse(_gramsController.text.trim());
+
+    if (parsed == null || parsed < 10 || parsed > 1000) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Masukkan jumlah porsi antara 10–1000 gram.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    widget.onSave(food, parsed, widget.initialMeal);
+    Navigator.pop(context, true);
   }
 
   Widget _buildFoodAccordion(FoodItem food) {
     final expanded = _expandedFoodId == food.id;
-    final selected = _selectedFood.id == food.id;
-
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -958,27 +1100,27 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                           ),
                         ),
                         const SizedBox(height: 9),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton.icon(
-                            onPressed: () {
-                              setState(() => _selectedFood = food);
-                            },
-                            icon: Icon(
-                              selected
-                                  ? Icons.check_circle
-                                  : Icons.radio_button_unchecked,
-                              size: 16,
+                        const SizedBox(height: 4),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 44,
+                          child: FilledButton.icon(
+                            onPressed: () => _saveFood(food),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: diaryGreen,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
+                            icon: const Icon(Icons.check_rounded, size: 18),
                             label: Text(
-                              selected
-                                  ? 'Makanan dipilih'
-                                  : 'Pilih makanan ini',
-                            ),
-                            style: TextButton.styleFrom(
-                              foregroundColor: diaryGreen,
-                              textStyle: const TextStyle(
-                                fontSize: 11,
+                              widget.initialFood == null
+                                  ? 'Simpan makanan'
+                                  : 'Simpan perubahan',
+                              style: const TextStyle(
+                                fontSize: 12,
                                 fontWeight: FontWeight.w800,
                               ),
                             ),
@@ -1051,6 +1193,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                       ),
                     ),
                     IconButton(
+                      tooltip: 'Tutup',
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
                     ),
@@ -1060,6 +1203,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),
                 child: TextField(
+                  textInputAction: TextInputAction.search,
                   onChanged: (value) => setState(() => _query = value),
                   decoration: InputDecoration(
                     hintText: 'Cari nasi, telur, buah...',
@@ -1136,95 +1280,6 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                           return _buildFoodAccordion(_filteredFoods[index]);
                         },
                       ),
-              ),
-              Container(
-                padding: const EdgeInsets.fromLTRB(18, 12, 18, 16),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(top: BorderSide(color: diaryLine)),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          'Waktu makan',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            color: diaryDarkGreen,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            value: _selectedMeal,
-                            isExpanded: true,
-                            decoration: InputDecoration(
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 9,
-                              ),
-                              filled: true,
-                              fillColor: diaryCream,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(11),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            items: meals
-                                .map(
-                                  (meal) => DropdownMenuItem(
-                                    value: meal,
-                                    child: Text(
-                                      meal,
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() => _selectedMeal = value);
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 11),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: FilledButton.icon(
-                        onPressed: () {
-                          final parsed = double.tryParse(_gramsController.text);
-                          final grams =
-                              (parsed == null || parsed < 10 || parsed > 1000)
-                              ? _grams
-                              : parsed;
-                          widget.onSave(_selectedFood, grams, _selectedMeal);
-                          Navigator.pop(context);
-                        },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: diaryGreen,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        icon: const Icon(Icons.check),
-                        label: Text(
-                          widget.initialFood == null
-                              ? 'Simpan ke diary'
-                              : 'Simpan perubahan',
-                          style: const TextStyle(fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ],
           ),
