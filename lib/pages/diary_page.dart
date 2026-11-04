@@ -10,7 +10,14 @@ import 'recipe_page.dart';
 import 'news_page.dart';
 
 class DiaryPage extends StatefulWidget {
-  const DiaryPage({super.key});
+  final bool openAddFood;
+  final String initialMeal;
+
+  const DiaryPage({
+    super.key,
+    this.openAddFood = false,
+    this.initialMeal = 'Sarapan',
+  });
 
   @override
   State<DiaryPage> createState() => _DiaryPageState();
@@ -186,6 +193,18 @@ class _DiaryPageState extends State<DiaryPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.openAddFood) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _showFoodSheet(meal: widget.initialMeal);
+        }
+      });
+    }
+  }
+
   Widget build(BuildContext context) {
     final consumed = _totalKcal();
     final remaining = math.max(0.0, dailyKcalTarget - consumed);
@@ -210,7 +229,11 @@ class _DiaryPageState extends State<DiaryPage> {
                 color: diaryGreen,
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: const Icon(Icons.eco_outlined, color: Colors.white, size: 24),
+              child: const Icon(
+                Icons.eco_outlined,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
             const SizedBox(width: 11),
             const Column(
@@ -704,8 +727,9 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
 
   List<FoodItem> get _filteredFoods {
     return foodCatalog.where((food) {
-      final matchesQuery =
-          food.name.toLowerCase().contains(_query.toLowerCase());
+      final matchesQuery = food.name.toLowerCase().contains(
+        _query.toLowerCase(),
+      );
       final matchesCategory =
           _category == 'Semua' || food.category == _category;
       return matchesQuery && matchesCategory;
@@ -838,8 +862,8 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                                 controller: _gramsController,
                                 keyboardType:
                                     const TextInputType.numberWithOptions(
-                                  decimal: false,
-                                ),
+                                      decimal: false,
+                                    ),
                                 textAlign: TextAlign.center,
                                 onChanged: (value) {
                                   final parsed = double.tryParse(value);
@@ -860,13 +884,15 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                                   ),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(9),
-                                    borderSide:
-                                        const BorderSide(color: diaryLine),
+                                    borderSide: const BorderSide(
+                                      color: diaryLine,
+                                    ),
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(9),
-                                    borderSide:
-                                        const BorderSide(color: diaryLine),
+                                    borderSide: const BorderSide(
+                                      color: diaryLine,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -945,7 +971,9 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                               size: 16,
                             ),
                             label: Text(
-                              selected ? 'Makanan dipilih' : 'Pilih makanan ini',
+                              selected
+                                  ? 'Makanan dipilih'
+                                  : 'Pilih makanan ini',
                             ),
                             style: TextButton.styleFrom(
                               foregroundColor: diaryGreen,
@@ -1038,8 +1066,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                     prefixIcon: const Icon(Icons.search, color: diaryGreen),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: const BorderSide(color: diaryLine),
@@ -1099,10 +1126,7 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                     ? const Center(
                         child: Text(
                           'Makanan tidak ditemukan. Coba kata kunci lain.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.black54),
                         ),
                       )
                     : ListView.builder(
@@ -1175,17 +1199,12 @@ class _AddFoodSheetState extends State<_AddFoodSheet> {
                       height: 48,
                       child: FilledButton.icon(
                         onPressed: () {
-                          final parsed =
-                              double.tryParse(_gramsController.text);
+                          final parsed = double.tryParse(_gramsController.text);
                           final grams =
                               (parsed == null || parsed < 10 || parsed > 1000)
-                                  ? _grams
-                                  : parsed;
-                          widget.onSave(
-                            _selectedFood,
-                            grams,
-                            _selectedMeal,
-                          );
+                              ? _grams
+                              : parsed;
+                          widget.onSave(_selectedFood, grams, _selectedMeal);
                           Navigator.pop(context);
                         },
                         style: FilledButton.styleFrom(

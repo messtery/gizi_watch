@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
     ),
     _MealPreview(
       name: 'Makan malam',
-      menu: 'Menu makan malam',
+      menu: 'Belum ada makanan',
       kcal: 0,
       icon: Icons.nights_stay_outlined,
     ),
@@ -164,18 +164,20 @@ class _HomePageState extends State<HomePage> {
     return '$hour:$minute WIB';
   }
 
+  final String _userName = 'OrangHave';
+
   String _getGreeting() {
     final hour = DateTime.now().hour;
 
     if (hour >= 4 && hour < 11) {
-      return 'Selamat Pagi OrangHave';
+      return 'Selamat Pagi,';
     } else if (hour >= 11 && hour < 15) {
-      return 'Selamat Siang OrangHave';
+      return 'Selamat Siang,';
     } else if (hour >= 15 && hour < 18) {
-      return 'Selamat Sore OrangHave';
+      return 'Selamat Sore,';
     }
 
-    return 'Selamat Malam OrangHave';
+    return 'Selamat Malam,';
   }
 
   // ==========================================================
@@ -199,10 +201,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openDiary() {
+  void _openDiary({String meal = 'Sarapan'}) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const DiaryPage()),
+      MaterialPageRoute(
+        builder: (_) => DiaryPage(openAddFood: true, initialMeal: meal),
+      ),
     );
   }
 
@@ -484,96 +488,108 @@ class _HomePageState extends State<HomePage> {
   // ==========================================================
 
   Widget _buildAppBar() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 12, 18, 10),
-      child: Row(
-        children: [
-          Container(
-            width: 43,
-            height: 43,
-            decoration: BoxDecoration(
-              color: _green,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              Icons.eco_outlined,
-              color: Colors.white,
-              size: 25,
-            ),
-          ),
-          const SizedBox(width: 10),
-          const Expanded(
-            child: Text(
-              'GiziWatch',
-              style: TextStyle(
-                fontSize: 21,
-                fontWeight: FontWeight.w900,
-                color: _green,
-                letterSpacing: -0.5,
-              ),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Notifications',
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  backgroundColor: Colors.white,
-                  title: const Text('Notifications'),
-                  content: const Text(
-                    'Belum ada notifikasi baru.',
-                    style: TextStyle(color: _grey),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        'Tutup',
-                        style: TextStyle(color: _green),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.notifications_none_rounded,
-              color: _ink,
-              size: 25,
-            ),
-          ),
-          IconButton(
-            tooltip: 'Profile',
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  backgroundColor: Colors.white,
-                  title: const Text('My Profile'),
-                  content: const Text(
-                    'Informasi profil pengguna GiziWatch.',
-                    style: TextStyle(color: _grey),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        'Tutup',
-                        style: TextStyle(color: _green),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.account_circle_outlined,
-              color: _ink,
-              size: 26,
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: _bg,
+        boxShadow: [
+          BoxShadow(
+            color: _ink.withOpacity(0.10),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 12, 18, 10),
+        child: Row(
+          children: [
+            Container(
+              width: 43,
+              height: 43,
+              decoration: BoxDecoration(
+                color: _green,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(
+                Icons.eco_outlined,
+                color: Colors.white,
+                size: 25,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'GiziWatch',
+                style: TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.w900,
+                  color: _green,
+                  letterSpacing: -0.5,
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: 'Notifications',
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: Colors.white,
+                    title: const Text('Notifications'),
+                    content: const Text(
+                      'Belum ada notifikasi baru.',
+                      style: TextStyle(color: _grey),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text(
+                          'Tutup',
+                          style: TextStyle(color: _green),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.notifications_none_rounded,
+                color: _ink,
+                size: 25,
+              ),
+            ),
+            IconButton(
+              tooltip: 'Profile',
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    backgroundColor: Colors.white,
+                    title: const Text('My Profile'),
+                    content: const Text(
+                      'Informasi profil pengguna GiziWatch.',
+                      style: TextStyle(color: _grey),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text(
+                          'Tutup',
+                          style: TextStyle(color: _green),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              icon: const Icon(
+                Icons.account_circle_outlined,
+                color: _ink,
+                size: 26,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -587,75 +603,117 @@ class _HomePageState extends State<HomePage> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _getGreeting(),
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    color: _ink,
-                    letterSpacing: -0.5,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
+        decoration: BoxDecoration(
+          color: _lightGreen,
+          borderRadius: BorderRadius.circular(21),
+          border: Border.all(color: _green.withOpacity(0.08)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _getGreeting(),
+                    softWrap: true,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: _green,
+                      letterSpacing: -0.3,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 5),
-                const Text(
-                  'Bagaimana kabarmu hari ini?',
-                  style: TextStyle(fontSize: 11, color: _grey),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  '${_getDay(now)}, ${now.day} ${_getMonth(now)}',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: _ink,
+                  const SizedBox(height: 2),
+                  Text(
+                    _userName,
+                    softWrap: true,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: _green,
+                      height: 1.15,
+                      letterSpacing: -0.5,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  _getTime(now),
-                  style: const TextStyle(fontSize: 10, color: _grey),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Column(
-              children: const [
-                Icon(Icons.wb_cloudy_rounded, color: _orange, size: 24),
-                SizedBox(height: 3),
-                Text(
-                  '28°C',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: _ink,
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Bagaimana kabarmu hari ini?',
+                    softWrap: true,
+                    style: TextStyle(fontSize: 10, color: _grey, height: 1.3),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 7),
+            Expanded(
+              flex: 4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.78),
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      '${_getDay(now)}, ${now.day} ${_getMonth(now)}',
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        color: _ink,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _getTime(now),
+                      style: const TextStyle(
+                        fontSize: 9,
+                        color: _grey,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 7),
+            Container(
+              width: 48,
+              padding: const EdgeInsets.symmetric(vertical: 7),
+              decoration: BoxDecoration(
+                color: _orange.withOpacity(0.14),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: const Column(
+                children: [
+                  Icon(Icons.wb_cloudy_rounded, color: _orange, size: 22),
+                  SizedBox(height: 3),
+                  Text(
+                    '28°C',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w900,
+                      color: _ink,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // ==========================================================
   // HEALTH QUOTES CAROUSEL
   // ==========================================================
 
@@ -998,11 +1056,21 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildMeals() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader('Meals', 'Details', _openDiary),
+        const Text(
+          'Meals',
+          style: TextStyle(
+            color: _ink,
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
         const SizedBox(height: 8),
-        ..._meals.map(
-          (meal) => Container(
+        ..._meals.map((meal) {
+          final isEmpty = meal.kcal <= 0;
+
+          return Container(
             margin: const EdgeInsets.only(bottom: 9),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -1039,34 +1107,56 @@ class _HomePageState extends State<HomePage> {
                         meal.menu,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 10, color: _grey),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isEmpty ? _orange : _grey,
+                          fontWeight: isEmpty
+                              ? FontWeight.w700
+                              : FontWeight.normal,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 6),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      '${meal.kcal} kcal',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        color: _green,
+                if (isEmpty)
+                  TextButton.icon(
+                    onPressed: () => _openDiary(meal: meal.name),
+                    icon: const Icon(Icons.add_rounded, size: 16),
+                    label: const Text('Tambah'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: _green,
+                      padding: const EdgeInsets.symmetric(horizontal: 7),
+                      minimumSize: const Size(0, 36),
+                      textStyle: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 3),
-                    const Text(
-                      'Estimasi energi',
-                      style: TextStyle(fontSize: 9, color: _grey),
-                    ),
-                  ],
-                ),
+                  )
+                else
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${meal.kcal} kcal',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: _green,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      const Text(
+                        'Estimasi energi',
+                        style: TextStyle(fontSize: 9, color: _grey),
+                      ),
+                    ],
+                  ),
               ],
             ),
-          ),
-        ),
+          );
+        }),
       ],
     );
   }
