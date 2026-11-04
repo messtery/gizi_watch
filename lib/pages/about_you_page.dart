@@ -14,14 +14,18 @@ enum LifeStage { pregnant, breastfeeding }
 
 class _AboutYouPageState extends State<AboutYouPage> {
   // Form Controllers
-  final TextEditingController _nameController = TextEditingController(text: "Sarah Jenkins");
-  final TextEditingController _dobController = TextEditingController(text: "14 / 08 / 1995");
-  final TextEditingController _heightController = TextEditingController(text: "168");
-  final TextEditingController _weightController = TextEditingController(text: "62");
+  final TextEditingController _nameController =
+      TextEditingController(text: "Sarah Jenkins");
+  final TextEditingController _dobController =
+      TextEditingController(text: "14 / 08 / 1995");
+  final TextEditingController _heightController =
+      TextEditingController(text: "168");
+  final TextEditingController _weightController =
+      TextEditingController(text: "62");
 
   // Selection States
   Gender _selectedGender = Gender.female;
-  LifeStage? _selectedLifeStage; // Optional state (can be null)
+  final Set<LifeStage> _selectedLifeStages = {}; // Multiple selection / optional
 
   @override
   void dispose() {
@@ -46,7 +50,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Row 1: Header (Back Button, Step Progress Bar, Counter Text)
+              // --- ROW 1: HEADER (Back Button, Progress Bar, Counter) ---
               Row(
                 children: [
                   Container(
@@ -63,48 +67,19 @@ class _AboutYouPageState extends State<AboutYouPage> {
                       onPressed: () => Navigator.of(context).maybePop(),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: const LinearProgressIndicator(
-                        value: 2 / 3,
-                        minHeight: 8,
-                        backgroundColor: Color(0xFFE2DEC3),
-                        color: primaryColor,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: borderColor),
-                    ),
-                    child: const Text(
-                      '2 of 3',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: textColor,
-                      ),
-                    ),
-                  ),
                 ],
               ),
 
               const SizedBox(height: 20),
 
-              // Scrollable Form Content
+              // --- SCROLLABLE FORM CONTENT ---
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Row 2: Page Title & Description
+                      // --- ROW 2: TITLE & DESCRIPTION ---
                       Text(
                         'About You',
                         style: GoogleFonts.fraunces(
@@ -125,7 +100,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
 
                       const SizedBox(height: 20),
 
-                      // User Details (Restructured to 1 Column for clarity)
+                      // --- ROW 3: USER DETAILS (1 COLUMN LAYOUT) ---
                       _buildInputField(
                         label: 'Full Name',
                         placeholder: 'e.g. Alex',
@@ -155,7 +130,7 @@ class _AboutYouPageState extends State<AboutYouPage> {
 
                       const SizedBox(height: 20),
 
-                      // Biological Gender Selection (2 Columns)
+                      // --- ROW 4: BIOLOGICAL GENDER (2 COLUMNS) ---
                       const Text(
                         'Biological Gender',
                         style: TextStyle(
@@ -172,7 +147,8 @@ class _AboutYouPageState extends State<AboutYouPage> {
                               label: 'Female',
                               icon: Icons.female,
                               isSelected: _selectedGender == Gender.female,
-                              onTap: () => setState(() => _selectedGender = Gender.female),
+                              onTap: () => setState(
+                                  () => _selectedGender = Gender.female),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -181,7 +157,8 @@ class _AboutYouPageState extends State<AboutYouPage> {
                               label: 'Male',
                               icon: Icons.male,
                               isSelected: _selectedGender == Gender.male,
-                              onTap: () => setState(() => _selectedGender = Gender.male),
+                              onTap: () => setState(
+                                  () => _selectedGender = Gender.male),
                             ),
                           ),
                         ],
@@ -189,29 +166,84 @@ class _AboutYouPageState extends State<AboutYouPage> {
 
                       const SizedBox(height: 20),
 
-                      // Optional Physiological State (1 Column List)
-                      const Text(
-                        'Special Physiological State (Optional)',
+                      // --- ROW 5: SPECIAL PHYSIOLOGICAL STATE (OPTIONAL) ---
+                      Row(
+                        children: [
+                          const Text(
+                            'Special Physiological State',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: textColor.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'Optional',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                                color: textColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Select any condition that applies to customize your energy and nutrient target. You can leave this unselected.',
                         style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
+                          fontSize: 11,
+                          color: textColor.withValues(alpha: 0.65),
+                          height: 1.3,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
 
                       _buildLifeStageOption(
                         stage: LifeStage.pregnant,
                         title: 'Pregnant',
-                        description: 'Caloric, folate, and iron targets will be increased based on gestational needs.',
-                        icon: Icons.pregnant_woman,
+                        description:
+                            'Increases caloric, iron, and folate targets to support gestational needs.',
+                        icon: Icons.pregnant_woman_rounded,
+                        isSelected:
+                            _selectedLifeStages.contains(LifeStage.pregnant),
+                        onChanged: (bool? checked) {
+                          setState(() {
+                            if (checked == true) {
+                              _selectedLifeStages.add(LifeStage.pregnant);
+                            } else {
+                              _selectedLifeStages.remove(LifeStage.pregnant);
+                            }
+                          });
+                        },
                       ),
                       const SizedBox(height: 10),
                       _buildLifeStageOption(
                         stage: LifeStage.breastfeeding,
                         title: 'Nursing / Breastfeeding',
-                        description: 'Energy, protein, and fluid recommendations will be adjusted for milk production.',
-                        icon: Icons.favorite,
+                        description:
+                            'Adjusts energy, protein, and hydration goals for lactation.',
+                        icon: Icons.baby_changing_station_rounded,
+                        isSelected: _selectedLifeStages
+                            .contains(LifeStage.breastfeeding),
+                        onChanged: (bool? checked) {
+                          setState(() {
+                            if (checked == true) {
+                              _selectedLifeStages.add(LifeStage.breastfeeding);
+                            } else {
+                              _selectedLifeStages
+                                  .remove(LifeStage.breastfeeding);
+                            }
+                          });
+                        },
                       ),
 
                       const SizedBox(height: 16),
@@ -220,12 +252,12 @@ class _AboutYouPageState extends State<AboutYouPage> {
                 ),
               ),
 
-              // Bottom Row: Continue Button
+              // --- BOTTOM ROW: CONTINUE BUTTON ---
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Submit or navigate
+                    // Navigate or submit form
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
@@ -241,7 +273,8 @@ class _AboutYouPageState extends State<AboutYouPage> {
                     children: [
                       Text(
                         'Continue',
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(width: 8),
                       Icon(Icons.arrow_forward_rounded, size: 18),
@@ -255,6 +288,8 @@ class _AboutYouPageState extends State<AboutYouPage> {
       ),
     );
   }
+
+  // --- HELPER WIDGETS ---
 
   // Input Field Helper
   Widget _buildInputField({
@@ -282,10 +317,12 @@ class _AboutYouPageState extends State<AboutYouPage> {
           style: const TextStyle(fontSize: 13, color: Color(0xFF1C1F1A)),
           decoration: InputDecoration(
             hintText: placeholder,
-            hintStyle: TextStyle(color: const Color(0xFF1C1F1A).withValues(alpha: 0.35)),
+            hintStyle: TextStyle(
+                color: const Color(0xFF1C1F1A).withValues(alpha: 0.35)),
             filled: true,
             fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             suffixIcon: suffixIcon != null
                 ? Icon(suffixIcon, size: 18, color: const Color(0xFF2F5D3A))
                 : null,
@@ -295,7 +332,8 @@ class _AboutYouPageState extends State<AboutYouPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFF2F5D3A), width: 1.5),
+              borderSide:
+                  const BorderSide(color: Color(0xFF2F5D3A), width: 1.5),
             ),
           ),
         ),
@@ -319,7 +357,9 @@ class _AboutYouPageState extends State<AboutYouPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withValues(alpha: 0.12) : Colors.white,
+          color: isSelected
+              ? primaryColor.withValues(alpha: 0.12)
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? primaryColor : borderColor,
@@ -332,7 +372,9 @@ class _AboutYouPageState extends State<AboutYouPage> {
             Icon(
               icon,
               size: 18,
-              color: isSelected ? primaryColor : const Color(0xFF1C1F1A).withValues(alpha: 0.7),
+              color: isSelected
+                  ? primaryColor
+                  : const Color(0xFF1C1F1A).withValues(alpha: 0.7),
             ),
             const SizedBox(width: 8),
             Text(
@@ -349,69 +391,104 @@ class _AboutYouPageState extends State<AboutYouPage> {
     );
   }
 
-  // Single-Line Optional Physiological State Option
+  // Life Stage Checkbox Card Helper
   Widget _buildLifeStageOption({
     required LifeStage stage,
     required String title,
     required String description,
     required IconData icon,
+    required bool isSelected,
+    required ValueChanged<bool?> onChanged,
   }) {
-    final isSelected = _selectedLifeStage == stage;
     const primaryColor = Color(0xFF2F5D3A);
+    const textColor = Color(0xFF1C1F1A);
     const borderColor = Color(0xFFE2DEC3);
 
-    return InkWell(
-      onTap: () {
-        setState(() {
-          // Toggle selection (allows deselecting)
-          _selectedLifeStage = isSelected ? null : stage;
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isSelected ? primaryColor.withValues(alpha: 0.12) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? primaryColor : borderColor,
-            width: isSelected ? 1.5 : 1.0,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onChanged(!isSelected),
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? primaryColor.withValues(alpha: 0.08)
+                : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? primaryColor : borderColor,
+              width: isSelected ? 2.0 : 1.0,
+            ),
           ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isSelected ? primaryColor : const Color(0xFF1C1F1A).withValues(alpha: 0.6),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                      color: isSelected ? primaryColor : const Color(0xFF1C1F1A),
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: const Color(0xFF1C1F1A).withValues(alpha: 0.65),
-                      height: 1.3,
-                    ),
-                  ),
-                ],
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? primaryColor.withValues(alpha: 0.15)
+                      : const Color(0xFFF6F3EC),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  size: 20,
+                  color: isSelected
+                      ? primaryColor
+                      : textColor.withValues(alpha: 0.6),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.w600,
+                        color: isSelected ? primaryColor : textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: textColor.withValues(alpha: 0.7),
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                height: 24,
+                width: 24,
+                child: Checkbox(
+                  value: isSelected,
+                  onChanged: onChanged,
+                  activeColor: primaryColor,
+                  checkColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  side: BorderSide(
+                    color: isSelected
+                        ? primaryColor
+                        : textColor.withValues(alpha: 0.4),
+                    width: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
