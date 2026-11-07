@@ -600,110 +600,90 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildGreeting() {
     final now = DateTime.now();
+    final date = '${_getDay(now)}, ${now.day} ${_getMonth(now)} ${now.year}';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 16),
         decoration: BoxDecoration(
           color: _lightGreen,
-          borderRadius: BorderRadius.circular(21),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: _green.withOpacity(0.08)),
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              flex: 5,
+              flex: 6,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     _getGreeting(),
-                    softWrap: true,
                     style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: _green,
-                      letterSpacing: -0.3,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: _grey,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 3),
                   Text(
                     _userName,
-                    softWrap: true,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 21,
+                      height: 1.1,
                       fontWeight: FontWeight.w900,
                       color: _green,
-                      height: 1.15,
-                      letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Bagaimana kabarmu hari ini?',
-                    softWrap: true,
-                    style: TextStyle(fontSize: 10, color: _grey, height: 1.3),
+                  const SizedBox(height: 7),
+                  Text(
+                    date,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: _grey,
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 7),
+            const SizedBox(width: 12),
             Expanded(
               flex: 4,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.78),
-                  borderRadius: BorderRadius.circular(13),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      '${_getDay(now)}, ${now.day} ${_getMonth(now)}',
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w800,
-                        color: _ink,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _getTime(now),
-                      style: const TextStyle(
-                        fontSize: 9,
-                        color: _grey,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 7),
-            Container(
-              width: 48,
-              padding: const EdgeInsets.symmetric(vertical: 7),
-              decoration: BoxDecoration(
-                color: _orange.withOpacity(0.14),
-                borderRadius: BorderRadius.circular(13),
-              ),
-              child: const Column(
-                children: [
-                  Icon(Icons.wb_cloudy_rounded, color: _orange, size: 22),
-                  SizedBox(height: 3),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: const [
                   Text(
-                    '28°C',
+                    '38°C',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 25,
+                      height: 1.1,
                       fontWeight: FontWeight.w900,
                       color: _ink,
                     ),
+                  ),
+                  SizedBox(height: 7),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Icon(Icons.cloud_outlined, color: _orange, size: 17),
+                      SizedBox(width: 5),
+                      Flexible(
+                        child: Text(
+                          'Berawan',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: _grey,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -823,7 +803,7 @@ class _HomePageState extends State<HomePage> {
         Text(
           _selectedActivities.isEmpty
               ? 'Pilih aktivitas untuk mengatur rutinitasmu.'
-              : '${_selectedActivities.length} aktivitas dalam agenda hari ini',
+              : '${_selectedActivities.length} aktivitas dipilih',
           style: const TextStyle(fontSize: 11, color: _grey),
         ),
         const SizedBox(height: 13),
@@ -1055,113 +1035,132 @@ class _HomePageState extends State<HomePage> {
   // ==========================================================
 
   Widget _buildMeals() {
+    const dailyTarget = 2000;
+    final totalKcal = _meals.fold<int>(0, (sum, meal) => sum + meal.kcal);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Meals',
+          "Today's Meals",
           style: TextStyle(
             color: _ink,
             fontSize: 18,
             fontWeight: FontWeight.w900,
           ),
         ),
-        const SizedBox(height: 8),
-        ..._meals.map((meal) {
-          final isEmpty = meal.kcal <= 0;
-
-          return Container(
-            margin: const EdgeInsets.only(bottom: 9),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: _border),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: _lightGreen,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(meal.icon, color: _green, size: 22),
-                ),
-                const SizedBox(width: 11),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        meal.name,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          color: _ink,
-                        ),
+        const SizedBox(height: 4),
+        Text(
+          '$totalKcal kkal dari $dailyTarget kkal',
+          style: const TextStyle(fontSize: 11, color: _grey),
+        ),
+        const SizedBox(height: 11),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: _border),
+          ),
+          child: Column(
+            children: List.generate(_meals.length, (index) {
+              final meal = _meals[index];
+              final isEmpty = meal.kcal <= 0;
+              return Column(
+                children: [
+                  InkWell(
+                    onTap: isEmpty ? () => _openDiary(meal: meal.name) : null,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 13,
+                        vertical: 13,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        meal.menu,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isEmpty ? _orange : _grey,
-                          fontWeight: isEmpty
-                              ? FontWeight.w700
-                              : FontWeight.normal,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 6),
-                if (isEmpty)
-                  TextButton.icon(
-                    onPressed: () => _openDiary(meal: meal.name),
-                    icon: const Icon(Icons.add_rounded, size: 16),
-                    label: const Text('Tambah'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: _green,
-                      padding: const EdgeInsets.symmetric(horizontal: 7),
-                      minimumSize: const Size(0, 36),
-                      textStyle: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: _lightGreen,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(meal.icon, color: _green, size: 22),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  meal.name,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: _ink,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  isEmpty ? 'Belum ada makanan' : meal.menu,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: _grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          if (isEmpty)
+                            TextButton(
+                              onPressed: () => _openDiary(meal: meal.name),
+                              style: TextButton.styleFrom(
+                                foregroundColor: _green,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                ),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text(
+                                '+ Tambah',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            )
+                          else
+                            Text(
+                              '${meal.kcal} kkal',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                color: _green,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                  )
-                else
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '${meal.kcal} kcal',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                          color: _green,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      const Text(
-                        'Estimasi energi',
-                        style: TextStyle(fontSize: 9, color: _grey),
-                      ),
-                    ],
                   ),
-              ],
-            ),
-          );
-        }),
+                  if (index != _meals.length - 1)
+                    const Divider(
+                      height: 1,
+                      indent: 67,
+                      endIndent: 13,
+                      color: _border,
+                    ),
+                ],
+              );
+            }),
+          ),
+        ),
       ],
     );
   }
 
-  // ==========================================================
   // RECIPES PREVIEW
   // ==========================================================
 
@@ -1169,76 +1168,152 @@ class _HomePageState extends State<HomePage> {
     final recipes = [
       {
         'title': 'Tumis hati ayam kecap',
-        'category': 'Rich in iron',
-        'icon': Icons.restaurant_rounded,
+        'category': 'Zat Besi',
+        'minutes': '20 menit',
+        'kcal': '245 kkal',
+        'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=700',
       },
       {
         'title': 'Sup kacang merah',
-        'category': 'High protein',
-        'icon': Icons.soup_kitchen_rounded,
+        'category': 'Protein',
+        'minutes': '30 menit',
+        'kcal': '180 kkal',
+        'image':
+            'https://images.unsplash.com/photo-1547592180-85f173990554?w=700',
       },
       {
         'title': 'Semur daging sapi',
-        'category': 'Rich in iron',
-        'icon': Icons.ramen_dining_rounded,
+        'category': 'Zat Besi',
+        'minutes': '45 menit',
+        'kcal': '320 kkal',
+        'image': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=700',
       },
     ];
-
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Recipes', 'See all', () => _navigateTo(3)),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         SizedBox(
-          height: 142,
-          child: ListView.separated(
+          height: 222,
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: recipes.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemCount: null,
             itemBuilder: (context, index) {
-              final recipe = recipes[index];
-
+              final recipe = recipes[index % recipes.length];
               return InkWell(
                 onTap: () => _navigateTo(3),
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  width: 145,
-                  padding: const EdgeInsets.all(12),
+                  width: 190,
+                  margin: const EdgeInsets.only(right: 11),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: _border),
                   ),
+                  clipBehavior: Clip.antiAlias,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        height: 65,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: _lightGreen,
-                          borderRadius: BorderRadius.circular(11),
-                        ),
-                        child: Icon(
-                          recipe['icon'] as IconData,
-                          size: 30,
-                          color: _green,
+                      Expanded(
+                        flex: 6,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Image.network(
+                              recipe['image']!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Container(
+                                color: _lightGreen,
+                                child: const Icon(
+                                  Icons.restaurant_rounded,
+                                  size: 42,
+                                  color: _green,
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 9,
+                              left: 9,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 9,
+                                  vertical: 5,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.94),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  recipe['category']!,
+                                  style: const TextStyle(
+                                    color: _green,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        recipe['title'] as String,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: _ink,
-                          fontWeight: FontWeight.w800,
+                      Expanded(
+                        flex: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(11, 9, 11, 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                recipe['title']!,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  height: 1.2,
+                                  color: _ink,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                '${recipe['minutes']} • ${recipe['kcal']}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: _grey,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+
+                              const Spacer(),
+
+                              Row(
+                                children: [
+                                  ...List.generate(
+                                    5,
+                                    (index) => const Icon(
+                                      Icons.star_rounded,
+                                      color: Color(0xFFF2B544),
+                                      size: 15,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    recipe['rating'] ?? '4.9',
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      color: _ink,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        recipe['category'] as String,
-                        style: const TextStyle(fontSize: 9, color: _grey),
                       ),
                     ],
                   ),
@@ -1251,103 +1326,179 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ==========================================================
   // NEWS PREVIEW
   // ==========================================================
 
   Widget _buildNews() {
     final news = [
       {
-        'category': 'Nutrition',
-        'title':
-            'Essential Animal Protein Intake to Prevent Stunting in Children',
+        'category': 'Gizi',
+        'title': 'Pentingnya Asupan Protein Hewani untuk Mencegah Stunting',
+        'date': '7 November 2026',
+        'read': '4 menit baca',
+        'image': 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=900',
       },
       {
         'category': 'Stunting',
-        'title': 'Identifying Key Symptoms of Stunting and Early Intervention',
+        'title': 'Kenali Gejala Stunting dan Pentingnya Intervensi Dini',
+        'date': '6 November 2026',
+        'read': '3 menit baca',
+        'image': 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?w=700',
       },
       {
-        'category': 'Malnutrition',
-        'title':
-            'Long-term Effects of Chronic Undernutrition on Cognitive Function',
+        'category': 'Kesehatan',
+        'title': 'Dampak Kekurangan Gizi terhadap Tumbuh Kembang Anak',
+        'date': '5 November 2026',
+        'read': '5 menit baca',
+        'image':
+            'https://images.unsplash.com/photo-1547592180-85f173990554?w=700',
       },
     ];
-
+    Widget categoryChip(String label) => Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: _lightGreen,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: _green,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+    Widget newsImage(String url, {double? width, double? height}) =>
+        Image.network(
+          url,
+          width: width,
+          height: height,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => Container(
+            width: width,
+            height: height,
+            color: _lightGreen,
+            child: const Icon(Icons.article_outlined, color: _green, size: 30),
+          ),
+        );
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Latest News', 'See all', () => _navigateTo(4)),
-        const SizedBox(height: 8),
-        ...news.map(
-          (item) => InkWell(
-            onTap: () => _navigateTo(4),
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 9),
-              padding: const EdgeInsets.all(13),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: _border),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 39,
-                    height: 39,
-                    decoration: BoxDecoration(
-                      color: _lightGreen,
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: const Icon(
-                      Icons.article_outlined,
-                      color: _green,
-                      size: 21,
-                    ),
-                  ),
-                  const SizedBox(width: 11),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item['category']!,
-                          style: const TextStyle(
-                            color: _green,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 9,
-                          ),
+        const SizedBox(height: 10),
+        InkWell(
+          onTap: () => _navigateTo(4),
+          borderRadius: BorderRadius.circular(17),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(17),
+              border: Border.all(color: _border),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 170,
+                  width: double.infinity,
+                  child: newsImage(news[0]['image']!),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      categoryChip(news[0]['category']!),
+                      const SizedBox(height: 8),
+                      Text(
+                        news[0]['title']!,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: _ink,
+                          fontSize: 15,
+                          height: 1.3,
+                          fontWeight: FontWeight.w900,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          item['title']!,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: _ink,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 11,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 7),
+                      Text(
+                        '${news[0]['date']} • ${news[0]['read']}',
+                        style: const TextStyle(fontSize: 10, color: _grey),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 5),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: _grey,
-                    size: 20,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
+        const SizedBox(height: 9),
+        ...news
+            .skip(1)
+            .map(
+              (item) => InkWell(
+                onTap: () => _navigateTo(4),
+                borderRadius: BorderRadius.circular(14),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 9),
+                  padding: const EdgeInsets.all(9),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: _border),
+                  ),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: newsImage(item['image']!, width: 92, height: 88),
+                      ),
+                      const SizedBox(width: 11),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            categoryChip(item['category']!),
+                            const SizedBox(height: 6),
+                            Text(
+                              item['title']!,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: _ink,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 11,
+                                height: 1.3,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '${item['date']} • ${item['read']}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 9, color: _grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 3),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        color: _grey,
+                        size: 19,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
       ],
     );
   }
 
-  // ==========================================================
   // MAIN BUILD
   // ==========================================================
 
