@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'login_page.dart';
 
 import '../widgets/app_text_field.dart';
-import '../widgets/footer_widget.dart';
 import '../widgets/nutrition_orbit.dart';
 import '../widgets/primary_button.dart';
 
@@ -104,6 +103,19 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  void _showPolicyNotice(String policy) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$policy page is not connected yet.')),
+    );
+  }
+
+  void _navigateToLogin() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,19 +155,17 @@ class _RegisterPageState extends State<RegisterPage> {
                           onPressed: _register,
                         ),
 
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 18),
 
-                        FooterWidget(
-                          isLoginPage: false,
-                          onLoginPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const LoginPage(),
-                              ),
-                            );
-                          },
-                        ),
+                        _buildLoginPrompt(),
+
+                        const SizedBox(height: 28),
+
+                        _buildDisclaimer(),
+
+                        const SizedBox(height: 12),
+
+                        _buildCopyright(),
                       ],
                     ),
                   ),
@@ -188,55 +198,6 @@ class _RegisterPageState extends State<RegisterPage> {
               size: 15,
               color: Color(0xFF263B2D),
             ),
-          ),
-        ),
-
-        const SizedBox(width: 14),
-
-        Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2F6541),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Container(
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE2DED3),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Container(
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE2DED3),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(width: 12),
-
-        const Text(
-          '1 of 3',
-          style: TextStyle(
-            fontSize: 11,
-            color: Color(0xFF777269),
-            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -403,7 +364,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
             ),
+
             const SizedBox(width: 4),
+
             Expanded(
               child: Container(
                 height: 4,
@@ -415,7 +378,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
             ),
+
             const SizedBox(width: 4),
+
             Expanded(
               child: Container(
                 height: 4,
@@ -448,44 +413,170 @@ class _RegisterPageState extends State<RegisterPage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
           onTap: () {
             setState(() {
               _agreeToTerms = !_agreeToTerms;
             });
           },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              color: _agreeToTerms ? const Color(0xFF2F6541) : Colors.white,
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(
-                color: _agreeToTerms
-                    ? const Color(0xFF2F6541)
-                    : const Color(0xFFD9D3C8),
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: Center(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: _agreeToTerms ? const Color(0xFF2F6541) : Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: _agreeToTerms
+                        ? const Color(0xFF2F6541)
+                        : const Color(0xFFD9D3C8),
+                    width: 1.5,
+                  ),
+                ),
+                child: _agreeToTerms
+                    ? const Icon(Icons.check, color: Colors.white, size: 17)
+                    : null,
               ),
             ),
-            child: _agreeToTerms
-                ? const Icon(Icons.check, color: Colors.white, size: 14)
-                : null,
           ),
         ),
 
-        const SizedBox(width: 9),
+        const SizedBox(width: 8),
 
-        const Expanded(
-          child: Text(
-            'I agree to the Terms and Privacy Policy, and understand that this app gives guidance, not medical diagnosis.',
-            style: TextStyle(
-              fontSize: 10.5,
-              height: 1.4,
-              color: Color(0xFF777269),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Wrap(
+              spacing: 3,
+              runSpacing: 2,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                const Text(
+                  'I agree to the',
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.5,
+                    color: Color(0xFF777269),
+                  ),
+                ),
+
+                InkWell(
+                  onTap: () => _showPolicyNotice('Terms'),
+                  child: const Text(
+                    'Terms',
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.5,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF2F6541),
+                      decoration: TextDecoration.underline,
+                      decorationColor: Color(0xFF2F6541),
+                    ),
+                  ),
+                ),
+
+                const Text(
+                  'and',
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.5,
+                    color: Color(0xFF777269),
+                  ),
+                ),
+
+                InkWell(
+                  onTap: () => _showPolicyNotice('Privacy Policy'),
+                  child: const Text(
+                    'Privacy Policy',
+                    style: TextStyle(
+                      fontSize: 12,
+                      height: 1.5,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF2F6541),
+                      decoration: TextDecoration.underline,
+                      decorationColor: Color(0xFF2F6541),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLoginPrompt() {
+    return Center(
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 4,
+        children: [
+          const Text(
+            'Already have an account?',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF777269),
+            ),
+          ),
+
+          InkWell(
+            borderRadius: BorderRadius.circular(4),
+            onTap: _navigateToLogin,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 3, vertical: 5),
+              child: Text(
+                'Log in',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF2F6541),
+                  decoration: TextDecoration.underline,
+                  decorationColor: Color(0xFF2F6541),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDisclaimer() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12),
+        child: Text(
+          'This app provides nutritional guidance and is not a substitute for medical diagnosis.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 10.5,
+            height: 1.5,
+            color: Color(0xFF777269),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCopyright() {
+    return const Center(
+      child: Text(
+        '© 2026 GiziWatch',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFFAAA397),
+        ),
+      ),
     );
   }
 }
