@@ -1179,10 +1179,19 @@ class _DiaryPageState extends State<DiaryPage> {
                 flex: 3,
                 child: SizedBox(
                   height: 46,
-                  child: TextButton(
+                  child: OutlinedButton(
                     onPressed: _cancelAdding,
-                    style: TextButton.styleFrom(
+                    style: OutlinedButton.styleFrom(
                       foregroundColor: diaryDarkGreen,
+                      backgroundColor: Colors.transparent,
+                      side: BorderSide(
+                        color: diaryDarkGreen.withOpacity(0.4),
+                        width: 1.2,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.zero,
                       textStyle: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -1712,10 +1721,19 @@ class _EditPortionSheetState extends State<_EditPortionSheet> {
                     flex: 3,
                     child: SizedBox(
                       height: 46,
-                      child: TextButton(
+                      child: OutlinedButton(
                         onPressed: () => Navigator.pop(context, -1.0),
-                        style: TextButton.styleFrom(
+                        style: OutlinedButton.styleFrom(
                           foregroundColor: diaryTerracotta,
+                          backgroundColor: Colors.transparent,
+                          side: const BorderSide(
+                            color: diaryTerracotta,
+                            width: 1.2,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.zero,
                           textStyle: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
