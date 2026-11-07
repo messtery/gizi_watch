@@ -15,6 +15,49 @@ class _BodyPageState extends State<BodyPage> {
   List<Measurement> measurements = [];
   bool isLoading = true;
   int selectedNavIndex = 2; // Body menjadi tab yang pertama kali dibuka.
+
+  String _selectedPeriod = 'Month';
+  DateTime? _chartAnchorDate;
+  int? _selectedChartIndex;
+
+  DateTime get _periodAnchor =>
+      _chartAnchorDate ?? latestMeasurement?.date ?? DateTime.now();
+
+  List<Measurement> get _filteredMeasurements {
+    if (measurements.isEmpty) return [];
+
+    DateTime start;
+    DateTime end;
+
+    switch (_selectedPeriod) {
+      case 'Week':
+        final anchor = _periodAnchor;
+        start = DateTime(
+          anchor.year,
+          anchor.month,
+          anchor.day - (anchor.weekday - DateTime.monday),
+        );
+        end = start.add(const Duration(days: 7));
+        break;
+      case 'Year':
+        start = DateTime(_periodAnchor.year);
+        end = DateTime(_periodAnchor.year + 1);
+        break;
+      case 'Month':
+      default:
+        start = DateTime(_periodAnchor.year, _periodAnchor.month);
+        end = DateTime(_periodAnchor.year, _periodAnchor.month + 1);
+        break;
+    }
+
+    final result = measurements.where((item) {
+      return !item.date.isBefore(start) && item.date.isBefore(end);
+    }).toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+
+    return result;
+  }
+
   Measurement? get latestMeasurement {
     if (measurements.isEmpty) return null;
     return measurements.first;
@@ -133,6 +176,88 @@ class _BodyPageState extends State<BodyPage> {
     if (measurements.length < 2) return 0;
     return measurements[0].weight - measurements[1].weight;
   }
+  String _monthName(int month) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return months[month - 1];
+  }
+
+  String _periodTitle() {
+    if (_selectedPeriod == 'Year') {
+      return '${_periodAnchor.year}';
+    }
+
+    if (_selectedPeriod == 'Week') {
+      final start = DateTime(
+        _periodAnchor.year,
+        _periodAnchor.month,
+        _periodAnchor.day - (_periodAnchor.weekday - DateTime.monday),
+      );
+      final end = start.add(const Duration(days: 6));
+      return '${start.day} ${_monthName(start.month)} – '
+          '${end.day} ${_monthName(end.month)} ${end.year}';
+    }
+
+    return '${_monthName(_periodAnchor.month)} ${_periodAnchor.year}';
+  }
+
+  void _changeChartPeriod(String period) {
+    setState(() {
+      _selectedPeriod = period;
+      _selectedChartIndex = null;
+      _chartAnchorDate ??= latestMeasurement?.date ?? DateTime.now();
+    });
+  }
+
+  void _navigateChartPeriod(int direction) {
+    setState(() {
+      final anchor = _periodAnchor;
+      if (_selectedPeriod == 'Week') {
+        _chartAnchorDate = anchor.add(Duration(days: 7 * direction));
+      } else if (_selectedPeriod == 'Year') {
+        _chartAnchorDate = DateTime(anchor.year + direction, anchor.month, 1);
+      } else {
+        _chartAnchorDate = DateTime(anchor.year, anchor.month + direction, 1);
+      }
+      _selectedChartIndex = null;
+    });
+  }
+
+  void _selectChartPoint(TapDownDetails details, Size size) {
+    final data = _filteredMeasurements;
+    if (data.isEmpty) return;
+
+    const leftPadding = 38.0;
+    const rightPadding = 12.0;
+    final chartWidth = size.width - leftPadding - rightPadding;
+
+    final firstDate = data.first.date;
+    final lastDate = data.last.date;
+    final totalDays = lastDate.difference(firstDate).inMilliseconds.toDouble();
+
+    int nearestIndex = 0;
+    double nearestDistance = double.infinity;
+
+    for (int i = 0; i < data.length; i++) {
+      final elapsed = data[i].date.difference(firstDate).inMilliseconds.toDouble();
+      final x = totalDays == 0
+          ? leftPadding + chartWidth / 2
+          : leftPadding + (elapsed / totalDays) * chartWidth;
+      final distance = (details.localPosition.dx - x).abs();
+
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = i;
+      }
+    }
+
+    setState(() {
+      _selectedChartIndex = nearestIndex;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final isBodyTab = selectedNavIndex == 2;
@@ -471,13 +596,38 @@ letterSpacing: -1.2,
     );
   }
   Widget _buildBmiScale(double bmi, {bool darkMode = false}) {
-    final position = ((bmi - 15) / 25).clamp(0.0, 1.0);
+    // Position the marker inside the matching BMI category segment.
+    // Segment boundaries: 18.5, 25.0, and 30.0.
+    final double position;
+    if (bmi < 18.5) {
+      position = ((bmi - 15.0) / (18.5 - 15.0) * 0.25)
+          .clamp(0.0, 0.25)
+          .toDouble();
+    } else if (bmi < 25.0) {
+      position = (0.25 + (bmi - 18.5) / (25.0 - 18.5) * 0.25)
+          .clamp(0.25, 0.50)
+          .toDouble();
+    } else if (bmi < 30.0) {
+      position = (0.50 + (bmi - 25.0) / (30.0 - 25.0) * 0.25)
+          .clamp(0.50, 0.75)
+          .toDouble();
+    } else {
+      position = (0.75 + (bmi - 30.0) / (40.0 - 30.0) * 0.25)
+          .clamp(0.75, 1.0)
+          .toDouble();
+    }
+
     return Column(
       children: [
         SizedBox(
           height: 18,
           child: LayoutBuilder(
             builder: (context, constraints) {
+              final markerLeft =
+                  (constraints.maxWidth * position - 8.0)
+                      .clamp(0.0, constraints.maxWidth - 16.0)
+                      .toDouble();
+
               return Stack(
                 clipBehavior: Clip.none,
                 children: [
@@ -490,7 +640,7 @@ letterSpacing: -1.2,
                     ],
                   ),
                   Positioned(
-                    left: (constraints.maxWidth - 16) * position,
+                    left: markerLeft,
                     top: -4,
                     child: Container(
                       width: 16,
@@ -553,7 +703,16 @@ letterSpacing: -1.2,
   }
 
   Widget _buildProgressSection() {
-    final change = getWeightChange();
+    final data = _filteredMeasurements;
+    final hasData = data.isNotEmpty;
+    final change = data.length >= 2
+        ? data.last.weight - data[data.length - 2].weight
+        : 0.0;
+    final selectedItem = _selectedChartIndex != null &&
+            _selectedChartIndex! < data.length
+        ? data[_selectedChartIndex!]
+        : null;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -573,24 +732,99 @@ letterSpacing: -1.2,
           const Text(
             'Weight Progress',
             style: TextStyle(
-            fontFamily: 'Georgia',
-            fontWeight: FontWeight.bold,
+              fontFamily: 'Georgia',
+              fontWeight: FontWeight.bold,
               fontSize: 17,
-color: darkGreen,
+              color: darkGreen,
             ),
           ),
           const SizedBox(height: 5),
           const Text(
             'Your weight development over time',
             style: TextStyle(
-            fontFamily: 'Georgia',
-            fontWeight: FontWeight.bold,
+              fontFamily: 'Georgia',
+              fontWeight: FontWeight.bold,
               fontSize: 12,
               color: textGrey,
             ),
           ),
-          const SizedBox(height: 18),
-          if (measurements.length >= 2)
+          const SizedBox(height: 17),
+
+          // Period filter
+          Row(
+            children: ['Week', 'Month', 'Year'].map((period) {
+              final isSelected = _selectedPeriod == period;
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: InkWell(
+                    onTap: () => _changeChartPeriod(period),
+                    borderRadius: BorderRadius.circular(9),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 9),
+                      decoration: BoxDecoration(
+                        color: isSelected ? green : cream,
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        period,
+                        style: TextStyle(
+                          fontFamily: 'Georgia',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          color: isSelected ? Colors.white : textGrey,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 13),
+
+          // Period navigation
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+            decoration: BoxDecoration(
+              color: cream,
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: Row(
+              children: [
+                InkWell(
+                  onTap: () => _navigateChartPeriod(-1),
+                  child: const Padding(
+                    padding: EdgeInsets.all(3),
+                    child: Icon(Icons.chevron_left, color: darkGreen, size: 21),
+                  ),
+                ),
+                Expanded(
+                  child: Text(
+                    _periodTitle(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: 'Georgia',
+                      fontWeight: FontWeight.bold,
+                      color: darkGreen,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () => _navigateChartPeriod(1),
+                  child: const Padding(
+                    padding: EdgeInsets.all(3),
+                    child: Icon(Icons.chevron_right, color: darkGreen, size: 21),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          if (hasData && data.length >= 2) ...[
             Row(
               children: [
                 Icon(
@@ -606,36 +840,89 @@ color: darkGreen,
                 Text(
                   '${change > 0 ? '+' : ''}${change.toStringAsFixed(1)} kg',
                   style: const TextStyle(
-            fontFamily: 'Georgia',
-            fontWeight: FontWeight.bold,
+                    fontFamily: 'Georgia',
+                    fontWeight: FontWeight.bold,
                     color: green,
-fontSize: 14,
+                    fontSize: 14,
                   ),
                 ),
                 const SizedBox(width: 5),
-                const Text(
-                  'vs previous measurement',
-                  style: TextStyle(
-            fontFamily: 'Georgia',
-            fontWeight: FontWeight.bold,
-                    fontSize: 11,
-                    color: textGrey,
+                const Expanded(
+                  child: Text(
+                    'vs previous measurement in this period',
+                    style: TextStyle(
+                      fontFamily: 'Georgia',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                      color: textGrey,
+                    ),
                   ),
                 ),
               ],
             ),
-          const SizedBox(height: 15),
-          if (measurements.length >= 2)
+            const SizedBox(height: 10),
+          ],
+
+          if (hasData) ...[
+            if (selectedItem != null)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: softGreen,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.calendar_today_outlined,
+                        color: green, size: 14),
+                    const SizedBox(width: 7),
+                    Expanded(
+                      child: Text(
+                        formatDate(selectedItem.date),
+                        style: const TextStyle(
+                          fontFamily: 'Georgia',
+                          fontWeight: FontWeight.bold,
+                          color: darkGreen,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '${selectedItem.weight.toStringAsFixed(1)} kg',
+                      style: const TextStyle(
+                        fontFamily: 'Georgia',
+                        fontWeight: FontWeight.bold,
+                        color: green,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             SizedBox(
               height: 190,
               width: double.infinity,
-              child: CustomPaint(
-                painter: WeightChartPainter(
-                  measurements: measurements.reversed.toList(),
-                ),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTapDown: (details) => _selectChartPoint(
+                      details,
+                      Size(constraints.maxWidth, 190),
+                    ),
+                    child: CustomPaint(
+                      painter: WeightChartPainter(
+                        measurements: data,
+                        selectedIndex: _selectedChartIndex,
+                      ),
+                    ),
+                  );
+                },
               ),
-            )
-          else
+            ),
+          ] else
             Container(
               height: 150,
               width: double.infinity,
@@ -643,15 +930,17 @@ fontSize: 14,
                 color: cream,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Center(
+              child: Center(
                 child: Padding(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   child: Text(
-                    'Add at least two measurements to view your weight progress chart.',
+                    measurements.isEmpty
+                        ? 'Add at least two measurements to view your weight progress chart.'
+                        : 'No weight records available for this period.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-            fontFamily: 'Georgia',
-            fontWeight: FontWeight.bold,
+                    style: const TextStyle(
+                      fontFamily: 'Georgia',
+                      fontWeight: FontWeight.bold,
                       fontSize: 12,
                       color: textGrey,
                     ),
@@ -660,39 +949,61 @@ fontSize: 14,
               ),
             ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              const Icon(
-                Icons.circle,
-                color: green,
-                size: 9,
-              ),
-              const SizedBox(width: 6),
-              const Text(
-                'Weight (kg)',
-                style: TextStyle(
-            fontFamily: 'Georgia',
-            fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                  color: textGrey,
+
+          if (hasData) ...[
+            const SizedBox(height: 15),
+            Container(height: 1, color: beige),
+            const SizedBox(height: 13),
+            Row(
+              children: [
+                Expanded(
+                  child: _weightSummaryTile(
+                    'Starting weight',
+                    '${data.first.weight.toStringAsFixed(1)} kg',
+                  ),
                 ),
-              ),
-              const Spacer(),
-              Text(
-                '${measurements.length} measurements',
-                style: const TextStyle(
-            fontFamily: 'Georgia',
-            fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                  color: textGrey,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _weightSummaryTile(
+                    'Latest weight',
+                    '${data.last.weight.toStringAsFixed(1)} kg',
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
+
+  Widget _weightSummaryTile(String label, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Georgia',
+            fontWeight: FontWeight.bold,
+            fontSize: 10,
+            color: textGrey,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: 'Georgia',
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: darkGreen,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildHistorySection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1298,38 +1609,61 @@ class _MeasurementFormPageState extends State<MeasurementFormPage> {
 // --------------------------------------------------
 class WeightChartPainter extends CustomPainter {
   final List<Measurement> measurements;
+  final int? selectedIndex;
+
   WeightChartPainter({
     required this.measurements,
+    this.selectedIndex,
   });
+
   @override
   void paint(Canvas canvas, Size size) {
-    if (measurements.length < 2) return;
+    if (measurements.isEmpty) return;
+
     const leftPadding = 38.0;
     const rightPadding = 12.0;
     const topPadding = 18.0;
     const bottomPadding = 25.0;
+
     final chartWidth = size.width - leftPadding - rightPadding;
     final chartHeight = size.height - topPadding - bottomPadding;
+
     final weights = measurements.map((e) => e.weight).toList();
     final minWeight = weights.reduce((a, b) => a < b ? a : b);
     final maxWeight = weights.reduce((a, b) => a > b ? a : b);
-    final range = (maxWeight - minWeight);
+    final range = maxWeight - minWeight;
     final padding = range == 0 ? 2.0 : range * 0.25;
     final minY = minWeight - padding;
     final maxY = maxWeight + padding;
     final totalRange = maxY - minY;
+
+    final firstDate = measurements.first.date;
+    final lastDate = measurements.last.date;
+    final totalMilliseconds =
+        lastDate.difference(firstDate).inMilliseconds.toDouble();
+
     double getX(int index) {
-      return leftPadding +
-          (index / (measurements.length - 1)) * chartWidth;
+      if (totalMilliseconds == 0) {
+        return leftPadding + chartWidth / 2;
+      }
+      final elapsed = measurements[index]
+          .date
+          .difference(firstDate)
+          .inMilliseconds
+          .toDouble();
+      return leftPadding + (elapsed / totalMilliseconds) * chartWidth;
     }
+
     double getY(double weight) {
       return topPadding +
           chartHeight -
           ((weight - minY) / totalRange) * chartHeight;
     }
+
     final gridPaint = Paint()
       ..color = beige
       ..strokeWidth = 1;
+
     for (int i = 0; i <= 3; i++) {
       final y = topPadding + (chartHeight / 3) * i;
       canvas.drawLine(
@@ -1338,23 +1672,22 @@ class WeightChartPainter extends CustomPainter {
         gridPaint,
       );
     }
+
     final linePath = Path();
     for (int i = 0; i < measurements.length; i++) {
-      final point = Offset(
-        getX(i),
-        getY(measurements[i].weight),
-      );
+      final point = Offset(getX(i), getY(measurements[i].weight));
       if (i == 0) {
         linePath.moveTo(point.dx, point.dy);
       } else {
         linePath.lineTo(point.dx, point.dy);
       }
     }
+
     final fillPath = Path.from(linePath)
-      ..lineTo(getX(measurements.length - 1),
-          topPadding + chartHeight)
+      ..lineTo(getX(measurements.length - 1), topPadding + chartHeight)
       ..lineTo(getX(0), topPadding + chartHeight)
       ..close();
+
     final fillPaint = Paint()
       ..shader = LinearGradient(
         colors: [
@@ -1364,35 +1697,37 @@ class WeightChartPainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
       ).createShader(
-        Rect.fromLTWH(
-          leftPadding,
-          topPadding,
-          chartWidth,
-          chartHeight,
-        ),
+        Rect.fromLTWH(leftPadding, topPadding, chartWidth, chartHeight),
       )
       ..style = PaintingStyle.fill;
+
     canvas.drawPath(fillPath, fillPaint);
+
     final linePaint = Paint()
       ..color = green
       ..strokeWidth = 2.7
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
+
     canvas.drawPath(linePath, linePaint);
+
     for (int i = 0; i < measurements.length; i++) {
       final x = getX(i);
       final y = getY(measurements[i].weight);
+      final isSelected = selectedIndex == i;
+
       canvas.drawCircle(
         Offset(x, y),
-        5,
+        isSelected ? 7 : 5,
         Paint()..color = Colors.white,
       );
       canvas.drawCircle(
         Offset(x, y),
-        3.5,
+        isSelected ? 5 : 3.5,
         Paint()..color = green,
       );
+
       final valuePainter = TextPainter(
         text: TextSpan(
           text: measurements[i].weight.toStringAsFixed(1),
@@ -1401,31 +1736,108 @@ class WeightChartPainter extends CustomPainter {
             fontWeight: FontWeight.bold,
             color: darkGreen,
             fontSize: 9,
-),
+          ),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
+
       valuePainter.paint(
         canvas,
         Offset(
-          x - valuePainter.width / 2,
+          (x - valuePainter.width / 2)
+              .clamp(leftPadding, size.width - rightPadding - valuePainter.width)
+              .toDouble(),
           y - 17,
         ),
       );
     }
-    final labels = [
-      measurements.first.date,
-      measurements[measurements.length ~/ 2].date,
-      measurements.last.date,
-    ];
-    final labelIndexes = [
-      0,
-      measurements.length ~/ 2,
-      measurements.length - 1,
-    ];
-    for (int i = 0; i < labels.length; i++) {
-      final date = labels[i];
-      final label = '${date.day}/${date.month}';
+
+    // Show a compact date/weight tooltip for the selected point.
+    if (selectedIndex != null &&
+        selectedIndex! >= 0 &&
+        selectedIndex! < measurements.length) {
+      final item = measurements[selectedIndex!];
+      final x = getX(selectedIndex!);
+      final y = getY(item.weight);
+      final dateLabel =
+          '${item.date.day}/${item.date.month}/${item.date.year}';
+      final tooltipText = '$dateLabel  •  ${item.weight.toStringAsFixed(1)} kg';
+
+      final tooltipPainter = TextPainter(
+        text: TextSpan(
+          text: tooltipText,
+          style: const TextStyle(
+            fontFamily: 'Georgia',
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+            fontSize: 9,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+
+      const horizontalPadding = 8.0;
+      const verticalPadding = 5.0;
+      final tooltipWidth = tooltipPainter.width + horizontalPadding * 2;
+      final tooltipHeight = tooltipPainter.height + verticalPadding * 2;
+      final tooltipLeft = (x - tooltipWidth / 2)
+          .clamp(2.0, size.width - tooltipWidth - 2)
+          .toDouble();
+      final tooltipTop = (y - tooltipHeight - 12)
+          .clamp(0.0, size.height - tooltipHeight)
+          .toDouble();
+
+      final tooltipRect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(
+          tooltipLeft,
+          tooltipTop,
+          tooltipWidth,
+          tooltipHeight,
+        ),
+        const Radius.circular(6),
+      );
+
+      canvas.drawRRect(tooltipRect, Paint()..color = darkGreen);
+      tooltipPainter.paint(
+        canvas,
+        Offset(
+          tooltipLeft + horizontalPadding,
+          tooltipTop + verticalPadding,
+        ),
+      );
+    }
+
+    // Limit visible labels so long periods remain readable.
+    final spanDays = lastDate.difference(firstDate).inDays;
+    final labelCount = measurements.length < 5 ? measurements.length : 5;
+    final labelIndexes = <int>[];
+
+    if (labelCount == 1) {
+      labelIndexes.add(0);
+    } else {
+      for (int i = 0; i < labelCount; i++) {
+        final index =
+            ((i * (measurements.length - 1)) / (labelCount - 1)).round();
+        if (!labelIndexes.contains(index)) labelIndexes.add(index);
+      }
+    }
+
+    String dateLabel(DateTime date) {
+      if (spanDays > 400) {
+        return '${date.month}/${date.year % 100}';
+      }
+      if (spanDays > 45) {
+        const months = [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+        return months[date.month - 1];
+      }
+      return '${date.day}/${date.month}';
+    }
+
+    for (final index in labelIndexes) {
+      final label = dateLabel(measurements[index].date);
       final painter = TextPainter(
         text: TextSpan(
           text: label,
@@ -1438,18 +1850,22 @@ class WeightChartPainter extends CustomPainter {
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      final x = getX(labelIndexes[i]);
+
+      final x = getX(index);
+      final labelX = (x - painter.width / 2)
+          .clamp(0.0, size.width - painter.width)
+          .toDouble();
+
       painter.paint(
         canvas,
-        Offset(
-          x - painter.width / 2,
-          size.height - 17,
-        ),
+        Offset(labelX, size.height - 17),
       );
     }
   }
+
   @override
   bool shouldRepaint(covariant WeightChartPainter oldDelegate) {
-    return oldDelegate.measurements != measurements;
+    return oldDelegate.measurements != measurements ||
+        oldDelegate.selectedIndex != selectedIndex;
   }
 }
