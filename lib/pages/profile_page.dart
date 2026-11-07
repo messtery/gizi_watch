@@ -103,18 +103,14 @@ class ProfilePage extends StatelessWidget {
               const DailyTargetsCard(),
 
               const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ),
 
-      // LOGOUT BUTTON
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-          child: LogoutButton(
-            onPressed: () => _showLogoutDialog(context),
+              // LOGOUT BUTTON - SCROLLS WITH THE PAGE
+              LogoutButton(
+                onPressed: () => _showLogoutDialog(context),
+              ),
+
+              const SizedBox(height: 8),
+            ],
           ),
         ),
       ),
@@ -430,19 +426,15 @@ class PersonalDetailsCard extends StatelessWidget {
             ),
           ),
 
-          // DETAILS LIST
-          ...List.generate(details.length, (index) {
-            return Column(
-              children: [
-                const Divider(
-                  color: beige,
-                  thickness: 1,
-                  height: 1,
-                ),
-                DetailRow(item: details[index]),
-              ],
-            );
-          }),
+          // ONE DIVIDER BELOW THE CARD HEADER
+          const Divider(
+            color: beige,
+            thickness: 1,
+            height: 1,
+          ),
+
+          // DETAILS LIST - NO DIVIDERS BETWEEN ROWS
+          ...details.map((detail) => DetailRow(item: detail)),
         ],
       ),
     );
