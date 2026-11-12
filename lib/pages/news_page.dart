@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gizi_watch/pages/forum_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -137,7 +138,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
     final categoryStyle = getCategoryStyle(widget.news.category);
     final isBookmarked = widget.bookmarkedIds.contains(widget.news.id);
 
-    // Rekomendasi berita lain ("You May Like")
     final recommendedNews = widget.allNews.where((item) => item.id != widget.news.id).toList();
 
     return Scaffold(
@@ -148,7 +148,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Section: Hero Image & Aksesibilitas Top Bar (Back, Share, Bookmark)
               Stack(
                 children: [
                   Image.network(
@@ -165,7 +164,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                     ),
                   ),
 
-                  // Top Action Buttons (Sejajar Horizontal)
                   Positioned(
                     top: MediaQuery.of(context).padding.top + 12,
                     left: 16,
@@ -173,7 +171,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Tombol Back di Kiri
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -192,11 +189,8 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                             tooltip: 'Back',
                           ),
                         ),
-
-                        // Action Buttons di Kanan: Share & Bookmark (Sejajar Horizontal)
                         Row(
                           children: [
-                            // Tombol Share (Tepat di sebelah kiri bookmark)
                             Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -216,8 +210,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                               ),
                             ),
                             const SizedBox(width: 10),
-
-                            // Tombol Bookmark di Paling Kanan
                             Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -251,8 +243,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                   ),
                 ],
               ),
-
-              // Isi Artikel Berita
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -310,8 +300,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                     const SizedBox(height: 16),
                     const Divider(color: Color(0xFFE0DCD3), height: 1),
                     const SizedBox(height: 20),
-
-                    // Content Paragraph 1
                     RichText(
                       text: TextSpan(
                         style: const TextStyle(
@@ -330,8 +318,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Blockquote Kutipan
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -362,8 +348,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
-                    // Content Paragraphs
                     Column(
                       children: widget.news.contentParagraphs.sublist(1).map((para) {
                         return Padding(
@@ -382,8 +366,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                     const SizedBox(height: 24),
                     const Divider(color: Color(0xFFE0DCD3), height: 1),
                     const SizedBox(height: 24),
-
-                    // Section "You May Like" (Rekomendasi Berita Lain dengan Layout Persis Halaman Depan)
                     const Text(
                       'You May Like',
                       style: TextStyle(
@@ -394,7 +376,6 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 14),
-
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -969,6 +950,15 @@ class _NewsPageState extends State<NewsPage> {
     );
   }
 
+  void _navigateToForumPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ForumPage(),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -980,14 +970,13 @@ class _NewsPageState extends State<NewsPage> {
     const Color primaryColor = Color(0xFF2F5D3A);
     const Color textColor = Color(0xFF1C1F1A);
 
-    // Take top 3 as latest news
     final latestNewsList = _allNews.take(3).toList();
 
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // Top Bar Header
+            // Top Bar Header dengan Link Bookmark & Link Forum Hashtag
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
@@ -1006,46 +995,70 @@ class _NewsPageState extends State<NewsPage> {
                             color: textColor,
                           ),
                         ),
-                        InkWell(
-                          onTap: _navigateToBookmarkPage,
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: primaryColor.withOpacity(0.08),
+                        Row(
+                          children: [
+                            // Tombol Link ke Bookmark
+                            InkWell(
+                              onTap: _navigateToBookmarkPage,
                               borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: primaryColor.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.bookmark_rounded,
+                                      color: primaryColor,
+                                      size: 22,
+                                    ),
+                                    if (_bookmarkedIds.isNotEmpty) ...[
+                                      const SizedBox(width: 4),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: primaryColor,
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          '${_bookmarkedIds.length}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
                             ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.bookmark_rounded,
+                            const SizedBox(width: 8),
+
+                            // Tombol Link ke Forum (Icon Hashtag #)
+                            InkWell(
+                              onTap: _navigateToForumPage,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: primaryColor.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  Icons.tag_rounded,
                                   color: primaryColor,
                                   size: 22,
                                 ),
-                                if (_bookmarkedIds.isNotEmpty) ...[
-                                  const SizedBox(width: 4),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: primaryColor,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      '${_bookmarkedIds.length}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
@@ -1105,7 +1118,7 @@ class _NewsPageState extends State<NewsPage> {
               ),
             ),
 
-            // SECTION BARU: "Latest News" Card Overlaid Image Carousel (3 Terbaru)
+            // Section "Latest News"
             SliverToBoxAdapter(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1142,7 +1155,6 @@ class _NewsPageState extends State<NewsPage> {
                               borderRadius: BorderRadius.circular(16),
                               child: Stack(
                                 children: [
-                                  // Background Image
                                   Positioned.fill(
                                     child: Image.network(
                                       item.imageUrl,
@@ -1153,7 +1165,6 @@ class _NewsPageState extends State<NewsPage> {
                                       ),
                                     ),
                                   ),
-                                  // Gradient Overlay (Transparan Ke Hitam) untuk Kontras Teks Maksimal
                                   Positioned.fill(
                                     child: Container(
                                       decoration: BoxDecoration(
@@ -1170,7 +1181,6 @@ class _NewsPageState extends State<NewsPage> {
                                       ),
                                     ),
                                   ),
-                                  // Content Teks (Kategori, Judul, Tanggal)
                                   Positioned(
                                     bottom: 14,
                                     left: 14,
@@ -1238,7 +1248,7 @@ class _NewsPageState extends State<NewsPage> {
               ),
             ),
 
-            // SECTION BARU: Category Filter Horizontal ChoiceChips
+            // Category Filter
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
@@ -1281,7 +1291,7 @@ class _NewsPageState extends State<NewsPage> {
               ),
             ),
 
-            // Main News List View Section
+            // Main News List
             _filteredNews.isEmpty
                 ? SliverToBoxAdapter(
                     child: Container(
